@@ -1,0 +1,1498 @@
+diff --git a/cmake/iMX8M.cmake b/cmake/iMX8M.cmake
+new file mode 100644
+index 0000000..448d4db
+--- /dev/null
++++ b/cmake/iMX8M.cmake
+@@ -0,0 +1,55 @@
++#******************************************
++# Copyright 2023 NXP
++#
++# SPDX-License-Identifier: BSD-3-Clause
++#******************************************
++
++target_include_directories(profinet
++  PRIVATE
++  ${PNET_DIR}/src/ports/iMX8M
++  ${PNET_DIR}/src
++  )
++
++target_sources(profinet
++  PRIVATE
++  ${PNET_DIR}/src/ports/iMX8M/pnal.c
++  ${PNET_DIR}/src/ports/iMX8M/pnal_eth.c
++  ${PNET_DIR}/src/ports/iMX8M/pnal_udp.c
++  )
++
++target_compile_options(profinet
++  PRIVATE
++  -Wall
++  -Wextra
++  -Werror
++  -Wno-unused-parameter
++  )
++
++target_include_directories(pn_dev
++  PRIVATE
++  ${PNET_DIR}/samples/pn_dev
++  ${PNET_DIR}/src/ports/iMX8M
++  ${PNET_DIR}/src
++  )
++
++target_sources(pn_dev
++  PRIVATE
++  ${PNET_DIR}/samples/pn_dev/sampleapp_common.c
++  ${PNET_DIR}/samples/pn_dev/app_utils.c
++  ${PNET_DIR}/samples/pn_dev/app_log.c
++  ${PNET_DIR}/samples/pn_dev/app_gsdml.c
++  ${PNET_DIR}/samples/pn_dev/app_data.c
++  )
++
++target_compile_options(pn_dev
++  PRIVATE
++  -Wall
++  -Wextra
++  -Werror
++  -Wno-unused-parameter
++  )
++
++install (FILES
++${PNET_DIR}/src/ports/iMX8M/pnal_config.h
++  DESTINATION include
++)
+\ No newline at end of file
+diff --git a/osal/include/osal.h b/osal/include/osal.h
+new file mode 100644
+index 0000000..4aab1b0
+--- /dev/null
++++ b/osal/include/osal.h
+@@ -0,0 +1,131 @@
++/*********************************************************************
++ *        _       _         _
++ *  _ __ | |_  _ | |  __ _ | |__   ___
++ * | '__|| __|(_)| | / _` || '_ \ / __|
++ * | |   | |_  _ | || (_| || |_) |\__ \
++ * |_|    \__|(_)|_| \__,_||_.__/ |___/
++ *
++ * www.rt-labs.com
++ * Copyright 2017 rt-labs AB, Sweden.
++ *
++ * This software is licensed under the terms of the BSD 3-clause
++ * license. See the file LICENSE distributed with this software for
++ * full license information.
++ ********************************************************************/
++
++#ifndef OSAL_H
++#define OSAL_H
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++#include <stdarg.h>
++#include <stddef.h>
++#include <stdint.h>
++#include <stdbool.h>
++
++#include "sys/osal_sys.h"
++#include "sys/osal_cc.h"
++
++#ifndef MIN
++#define MIN(a, b) (((a) < (b)) ? (a) : (b))
++#endif
++
++#ifndef MAX
++#define MAX(a, b) (((a) > (b)) ? (a) : (b))
++#endif
++
++#ifndef BIT
++#define BIT(n) (1U << (n))
++#endif
++
++#ifndef NELEMENTS
++#define NELEMENTS(a) (sizeof (a) / sizeof ((a)[0]))
++#endif
++
++#ifndef OS_WAIT_FOREVER
++#define OS_WAIT_FOREVER 0xFFFFFFFF
++#endif
++
++#ifndef OS_MAIN
++#define OS_MAIN int main
++#endif
++
++#ifndef OS_MUTEX
++typedef void os_mutex_t;
++#endif
++
++#ifndef OS_SEM
++typedef void os_sem_t;
++#endif
++
++#ifndef OS_THREAD
++typedef void os_thread_t;
++#endif
++
++#ifndef OS_EVENT
++typedef void os_event_t;
++#endif
++
++#ifndef OS_MBOX
++typedef void os_mbox_t;
++#endif
++
++#ifndef OS_TIMER
++typedef void os_timer_t;
++#endif
++
++void * os_malloc (size_t size);
++void os_free (void * ptr);
++
++void os_usleep (uint32_t us);
++uint32_t os_get_current_time_us (void);
++
++os_thread_t * os_thread_create (
++   const char * name,
++   uint32_t priority,
++   size_t stacksize,
++   void (*entry) (void * arg),
++   void * arg);
++
++os_mutex_t * os_mutex_create (void);
++void os_mutex_lock (os_mutex_t * mutex);
++void os_mutex_unlock (os_mutex_t * mutex);
++void os_mutex_destroy (os_mutex_t * mutex);
++
++os_sem_t * os_sem_create (size_t count);
++bool os_sem_wait (os_sem_t * sem, uint32_t time);
++void os_sem_signal (os_sem_t * sem);
++void os_sem_destroy (os_sem_t * sem);
++
++os_event_t * os_event_create (void);
++bool os_event_wait (
++   os_event_t * event,
++   uint32_t mask,
++   uint32_t * value,
++   uint32_t time);
++void os_event_set (os_event_t * event, uint32_t value);
++void os_event_clr (os_event_t * event, uint32_t value);
++void os_event_destroy (os_event_t * event);
++
++os_mbox_t * os_mbox_create (size_t size);
++bool os_mbox_fetch (os_mbox_t * mbox, void ** msg, uint32_t time);
++bool os_mbox_post (os_mbox_t * mbox, void * msg, uint32_t time);
++void os_mbox_destroy (os_mbox_t * mbox);
++
++os_timer_t * os_timer_create (
++   uint32_t us,
++   void (*fn) (os_timer_t * timer, void * arg),
++   void * arg,
++   bool oneshot);
++void os_timer_set (os_timer_t * timer, uint32_t us);
++void os_timer_start (os_timer_t * timer);
++void os_timer_stop (os_timer_t * timer);
++void os_timer_destroy (os_timer_t * timer);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* OSAL_H */
+\ No newline at end of file
+diff --git a/osal/include/osal_log.h b/osal/include/osal_log.h
+new file mode 100644
+index 0000000..71c6012
+--- /dev/null
++++ b/osal/include/osal_log.h
+@@ -0,0 +1,78 @@
++/*********************************************************************
++ *        _       _         _
++ *  _ __ | |_  _ | |  __ _ | |__   ___
++ * | '__|| __|(_)| | / _` || '_ \ / __|
++ * | |   | |_  _ | || (_| || |_) |\__ \
++ * |_|    \__|(_)|_| \__,_||_.__/ |___/
++ *
++ * www.rt-labs.com
++ * Copyright 2017 rt-labs AB, Sweden.
++ *
++ * This software is licensed under the terms of the BSD 3-clause
++ * license. See the file LICENSE distributed with this software for
++ * full license information.
++ ********************************************************************/
++
++#ifndef OSAL_LOG_H
++#define OSAL_LOG_H
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++#include "osal.h"
++
++/* Log levels */
++#define LOG_LEVEL_DEBUG   0x00
++#define LOG_LEVEL_INFO    0x01
++#define LOG_LEVEL_WARNING 0x02
++#define LOG_LEVEL_ERROR   0x03
++#define LOG_LEVEL_FATAL   0x04
++#define LOG_LEVEL_MASK    0x07
++#define LOG_LEVEL_GET(t)  (t & LOG_LEVEL_MASK)
++
++/* Log states */
++#define LOG_STATE_ON  0x80
++#define LOG_STATE_OFF 0x00
++
++#define LOG_ENABLED(type)                                                      \
++   ((LOG_LEVEL_GET (type) >= LOG_LEVEL) && (type & LOG_STATE_ON))
++
++/** Log a message if it is enabled */
++#define LOG(type, ...)                                                         \
++   do                                                                          \
++   {                                                                           \
++      if (LOG_ENABLED (type))                                                  \
++      {                                                                        \
++         os_log (type, __VA_ARGS__);                                           \
++      }                                                                        \
++   } while (0)
++
++/** Log debug messages */
++#define LOG_DEBUG(type, ...) LOG ((LOG_LEVEL_DEBUG | type), __VA_ARGS__)
++
++/** Log informational messages */
++#define LOG_INFO(type, ...) LOG ((LOG_LEVEL_INFO | type), __VA_ARGS__)
++
++/** Log warning messages */
++#define LOG_WARNING(type, ...) LOG ((LOG_LEVEL_WARNING | type), __VA_ARGS__)
++
++/** Log error messages */
++#define LOG_ERROR(type, ...) LOG ((LOG_LEVEL_ERROR | type), __VA_ARGS__)
++
++/** Log fatal messages */
++#define LOG_FATAL(type, ...) LOG ((LOG_LEVEL_FATAL | type), __VA_ARGS__)
++
++#define LOG_DEBUG_ENABLED(type)   LOG_ENABLED (LOG_LEVEL_DEBUG | type)
++#define LOG_INFO_ENABLED(type)    LOG_ENABLED (LOG_LEVEL_INFO | type)
++#define LOG_WARNING_ENABLED(type) LOG_ENABLED (LOG_LEVEL_WARNING | type)
++#define LOG_ERROR_ENABLED(type)   LOG_ENABLED (LOG_LEVEL_ERROR | type)
++#define LOG_FATAL_ENABLED(type)   LOG_ENABLED (LOG_LEVEL_FATAL | type)
++
++void os_log (uint8_t type, const char * fmt, ...) CC_FORMAT (2, 3);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* OSAL_LOG_H */
+\ No newline at end of file
+diff --git a/osal/src/freertos/osal.c b/osal/src/freertos/osal.c
+new file mode 100644
+index 0000000..c36a18c
+--- /dev/null
++++ b/osal/src/freertos/osal.c
+@@ -0,0 +1,238 @@
++/*********************************************************************
++ *        _       _         _
++ *  _ __ | |_  _ | |  __ _ | |__   ___
++ * | '__|| __|(_)| | / _` || '_ \ / __|
++ * | |   | |_  _ | || (_| || |_) |\__ \
++ * |_|    \__|(_)|_| \__,_||_.__/ |___/
++ *
++ * www.rt-labs.com
++ * Copyright 2021 rt-labs AB, Sweden.
++ *
++ * This software is licensed under the terms of the BSD 3-clause
++ * license. See the file LICENSE distributed with this software for
++ * full license information.
++ ********************************************************************/
++
++#include "osal.h"
++
++#include <stdlib.h>
++
++#define TMO_TO_TICKS(ms) \
++   ((ms == OS_WAIT_FOREVER) ? portMAX_DELAY : (ms) / portTICK_PERIOD_MS)
++
++void * os_malloc (size_t size)
++{
++   return malloc (size);
++}
++
++void os_free (void * ptr)
++{
++   free (ptr);
++}
++
++os_thread_t * os_thread_create (
++   const char * name,
++   uint32_t priority,
++   size_t stacksize,
++   void (*entry) (void * arg),
++   void * arg)
++{
++   TaskHandle_t xHandle = NULL;
++
++   /* stacksize in freertos is not in bytes but in stack depth, it should be
++    * divided by the stack width */
++   configSTACK_DEPTH_TYPE stackdepth =
++      stacksize / sizeof (configSTACK_DEPTH_TYPE);
++
++   if (xTaskCreate (entry, name, stackdepth, arg, priority, &xHandle) == pdPASS)
++   {
++      return (os_thread_t *)xHandle;
++   }
++   else
++   {
++      return NULL;
++   }
++}
++
++os_mutex_t * os_mutex_create (void)
++{
++   SemaphoreHandle_t handle = xSemaphoreCreateRecursiveMutex();
++   CC_ASSERT (handle != NULL);
++   return (os_mutex_t *)handle;
++}
++
++void os_mutex_lock (os_mutex_t * mutex)
++{
++   xSemaphoreTakeRecursive ((SemaphoreHandle_t)mutex, portMAX_DELAY);
++}
++
++void os_mutex_unlock (os_mutex_t * mutex)
++{
++   xSemaphoreGiveRecursive ((SemaphoreHandle_t)mutex);
++}
++
++void os_mutex_destroy (os_mutex_t * mutex)
++{
++   vSemaphoreDelete ((SemaphoreHandle_t)mutex);
++}
++
++void os_usleep (uint32_t us)
++{
++   vTaskDelay ((us / portTICK_PERIOD_MS) / 1000);
++}
++
++uint32_t os_get_current_time_us (void)
++{
++   return 1000 * (xTaskGetTickCount() / portTICK_PERIOD_MS);
++}
++
++os_sem_t * os_sem_create (size_t count)
++{
++   SemaphoreHandle_t handle = xSemaphoreCreateCounting (UINT32_MAX, count);
++   CC_ASSERT (handle != NULL);
++   return (os_sem_t *)handle;
++}
++
++bool os_sem_wait (os_sem_t * sem, uint32_t time)
++{
++   if (xSemaphoreTake ((SemaphoreHandle_t)sem, TMO_TO_TICKS (time)) == pdTRUE)
++   {
++      /* Did not timeout */
++      return false;
++   }
++
++   /* Timed out */
++   return true;
++}
++
++void os_sem_signal (os_sem_t * sem)
++{
++   xSemaphoreGive ((SemaphoreHandle_t)sem);
++}
++
++void os_sem_destroy (os_sem_t * sem)
++{
++   vSemaphoreDelete ((SemaphoreHandle_t)sem);
++}
++
++os_event_t * os_event_create (void)
++{
++   EventGroupHandle_t handle = xEventGroupCreate();
++   CC_ASSERT (handle);
++   return (os_event_t *)handle;
++}
++
++bool os_event_wait (os_event_t * event, uint32_t mask, uint32_t * value, uint32_t time)
++{
++   *value = xEventGroupWaitBits (
++      (EventGroupHandle_t)event,
++      mask,
++      pdFALSE,
++      pdFALSE,
++      TMO_TO_TICKS (time));
++
++   *value &= mask;
++   return *value == 0;
++}
++
++void os_event_set (os_event_t * event, uint32_t value)
++{
++   xEventGroupSetBits ((EventGroupHandle_t)event, value);
++}
++
++void os_event_clr (os_event_t * event, uint32_t value)
++{
++   xEventGroupClearBits ((EventGroupHandle_t)event, value);
++}
++
++void os_event_destroy (os_event_t * event)
++{
++   vEventGroupDelete ((EventGroupHandle_t)event);
++}
++
++os_mbox_t * os_mbox_create (size_t size)
++{
++   QueueHandle_t handle = xQueueCreate (size, sizeof (void *));
++   CC_ASSERT (handle);
++   return (os_mbox_t *)handle;
++}
++
++bool os_mbox_fetch (os_mbox_t * mbox, void ** msg, uint32_t time)
++{
++   BaseType_t success;
++
++   success = xQueueReceive ((QueueHandle_t)mbox, msg, TMO_TO_TICKS (time));
++   return success != pdTRUE;
++}
++
++bool os_mbox_post (os_mbox_t * mbox, void * msg, uint32_t time)
++{
++   BaseType_t success;
++
++   success = xQueueSendToBack ((QueueHandle_t)mbox, &msg, TMO_TO_TICKS (time));
++   return success != pdTRUE;
++}
++
++void os_mbox_destroy (os_mbox_t * mbox)
++{
++   vQueueDelete ((QueueHandle_t)mbox);
++}
++
++static void os_timer_callback (TimerHandle_t xTimer)
++{
++   os_timer_t * timer = pvTimerGetTimerID (xTimer);
++
++   if (timer->fn)
++      timer->fn (timer, timer->arg);
++}
++
++os_timer_t * os_timer_create (
++   uint32_t us,
++   void (*fn) (os_timer_t *, void * arg),
++   void * arg,
++   bool oneshot)
++{
++   os_timer_t * timer;
++
++   timer = malloc (sizeof (*timer));
++   CC_ASSERT (timer != NULL);
++
++   timer->fn  = fn;
++   timer->arg = arg;
++   timer->us  = us;
++
++   timer->handle = xTimerCreate (
++      "os_timer",
++      (us / portTICK_PERIOD_MS) / 1000,
++      oneshot ? pdFALSE : pdTRUE,
++      timer,
++      os_timer_callback);
++   CC_ASSERT (timer->handle != NULL);
++   return timer;
++}
++
++void os_timer_set (os_timer_t * timer, uint32_t us)
++{
++   timer->us = us;
++}
++
++void os_timer_start (os_timer_t * timer)
++{
++   /* Start timer by updating the period */
++   CC_ASSERT (
++      xTimerChangePeriod (
++         timer->handle,
++         (timer->us / portTICK_PERIOD_MS) / 1000,
++         portMAX_DELAY) == pdPASS);
++}
++
++void os_timer_stop (os_timer_t * timer)
++{
++   CC_ASSERT (xTimerStop (timer->handle, portMAX_DELAY) == pdPASS);
++}
++
++void os_timer_destroy (os_timer_t * timer)
++{
++   CC_ASSERT (xTimerDelete (timer->handle, portMAX_DELAY) == pdPASS);
++   free (timer);
++}
+\ No newline at end of file
+diff --git a/osal/src/freertos/osal_log.c b/osal/src/freertos/osal_log.c
+new file mode 100644
+index 0000000..9246bcb
+--- /dev/null
++++ b/osal/src/freertos/osal_log.c
+@@ -0,0 +1,49 @@
++/*********************************************************************
++ *        _       _         _
++ *  _ __ | |_  _ | |  __ _ | |__   ___
++ * | '__|| __|(_)| | / _` || '_ \ / __|
++ * | |   | |_  _ | || (_| || |_) |\__ \
++ * |_|    \__|(_)|_| \__,_||_.__/ |___/
++ *
++ * www.rt-labs.com
++ * Copyright 2021 rt-labs AB, Sweden.
++ *
++ * This software is licensed under the terms of the BSD 3-clause
++ * license. See the file LICENSE distributed with this software for
++ * full license information.
++ ********************************************************************/
++
++#include "osal_log.h"
++
++#include <stdarg.h>
++#include <stdio.h>
++
++void os_log (uint8_t type, const char * fmt, ...)
++{
++   va_list list;
++
++   switch (LOG_LEVEL_GET (type))
++   {
++   case LOG_LEVEL_DEBUG:
++      printf ("%10ld [DEBUG] ", xTaskGetTickCount());
++      break;
++   case LOG_LEVEL_INFO:
++      printf ("%10ld [INFO ] ", xTaskGetTickCount());
++      break;
++   case LOG_LEVEL_WARNING:
++      printf ("%10ld [WARN ] ", xTaskGetTickCount());
++      break;
++   case LOG_LEVEL_ERROR:
++      printf ("%10ld [ERROR] ", xTaskGetTickCount());
++      break;
++   case LOG_LEVEL_FATAL:
++      printf ("%10ld [FATAL] ", xTaskGetTickCount());
++      break;
++   default:
++      break;
++   }
++
++   va_start (list, fmt);
++   vprintf (fmt, list);
++   va_end (list);
++}
+\ No newline at end of file
+diff --git a/osal/src/freertos/sys/osal_cc.h b/osal/src/freertos/sys/osal_cc.h
+new file mode 100644
+index 0000000..ae1b909
+--- /dev/null
++++ b/osal/src/freertos/sys/osal_cc.h
+@@ -0,0 +1,90 @@
++/*********************************************************************
++ *        _       _         _
++ *  _ __ | |_  _ | |  __ _ | |__   ___
++ * | '__|| __|(_)| | / _` || '_ \ / __|
++ * | |   | |_  _ | || (_| || |_) |\__ \
++ * |_|    \__|(_)|_| \__,_||_.__/ |___/
++ *
++ * www.rt-labs.com
++ * Copyright 2021 rt-labs AB, Sweden.
++ *
++ * This software is licensed under the terms of the BSD 3-clause
++ * license. See the file LICENSE distributed with this software for
++ * full license information.
++ ********************************************************************/
++
++#ifndef CC_H
++#define CC_H
++
++#include <assert.h>
++
++#ifdef __cplusplus
++extern "C"
++{
++#endif
++
++#define CC_PACKED_BEGIN
++#define CC_PACKED_END
++#define CC_PACKED             __attribute__((packed))
++
++#define CC_FORMAT(str,arg)    __attribute__((format (printf, str, arg)))
++
++
++#if BYTE_ORDER == LITTLE_ENDIAN
++#define CC_TO_LE16(x)   ((uint16_t)(x))
++#define CC_TO_LE32(x)   ((uint32_t)(x))
++#define CC_TO_LE64(x)   ((uint64_t)(x))
++#define CC_FROM_LE16(x) ((uint16_t)(x))
++#define CC_FROM_LE32(x) ((uint32_t)(x))
++#define CC_FROM_LE64(x) ((uint64_t)(x))
++#define CC_TO_BE16(x)   ((uint16_t)__builtin_bswap16 (x))
++#define CC_TO_BE32(x)   ((uint32_t)__builtin_bswap32 (x))
++#define CC_TO_BE64(x)   ((uint64_t)__builtin_bswap64 (x))
++#define CC_FROM_BE16(x) ((uint16_t)__builtin_bswap16 (x))
++#define CC_FROM_BE32(x) ((uint32_t)__builtin_bswap32 (x))
++#define CC_FROM_BE64(x) ((uint64_t)__builtin_bswap64 (x))
++#else
++#define CC_TO_LE16(x)   ((uint16_t)__builtin_bswap16 (x))
++#define CC_TO_LE32(x)   ((uint32_t)__builtin_bswap32 (x))
++#define CC_TO_LE64(x)   ((uint64_t)__builtin_bswap64 (x))
++#define CC_FROM_LE16(x) ((uint16_t)__builtin_bswap16 (x))
++#define CC_FROM_LE32(x) ((uint32_t)__builtin_bswap32 (x))
++#define CC_FROM_LE64(x) ((uint64_t)__builtin_bswap64 (x))
++#define CC_TO_BE16(x)   ((uint16_t)(x))
++#define CC_TO_BE32(x)   ((uint32_t)(x))
++#define CC_TO_BE64(x)   ((uint64_t)(x))
++#define CC_FROM_BE16(x) ((uint16_t)(x))
++#define CC_FROM_BE32(x) ((uint32_t)(x))
++#define CC_FROM_BE64(x) ((uint64_t)(x))
++#endif
++
++#define CC_ATOMIC_GET8(p)     (*p)
++#define CC_ATOMIC_GET16(p)    (*p)
++#define CC_ATOMIC_GET32(p)    (*p)
++#define CC_ATOMIC_GET64(p)                      \
++({                                              \
++   uint64_t v;                                  \
++   /*int_lock();*/                              \
++   v = *p;                                      \
++   /*int_unlock();*/                            \
++   v;                                           \
++})
++
++#define CC_ATOMIC_SET8(p, v)  ((*p) = (v))
++#define CC_ATOMIC_SET16(p, v) ((*p) = (v))
++#define CC_ATOMIC_SET32(p, v) ((*p) = (v))
++#define CC_ATOMIC_SET64(p, v)                   \
++({                                              \
++   /*int_lock();*/                              \
++   *p = v;                                      \
++   /*int_unlock();*/                            \
++})
++
++#define CC_ASSERT(exp) assert (exp)
++#define CC_STATIC_ASSERT(exp) _Static_assert (exp, "")
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* CC_H */
+\ No newline at end of file
+diff --git a/osal/src/freertos/sys/osal_sys.h b/osal/src/freertos/sys/osal_sys.h
+new file mode 100644
+index 0000000..0e163b4
+--- /dev/null
++++ b/osal/src/freertos/sys/osal_sys.h
+@@ -0,0 +1,55 @@
++/*********************************************************************
++ *        _       _         _
++ *  _ __ | |_  _ | |  __ _ | |__   ___
++ * | '__|| __|(_)| | / _` || '_ \ / __|
++ * | |   | |_  _ | || (_| || |_) |\__ \
++ * |_|    \__|(_)|_| \__,_||_.__/ |___/
++ *
++ * www.rt-labs.com
++ * Copyright 2021 rt-labs AB, Sweden.
++ *
++ * This software is licensed under the terms of the BSD 3-clause
++ * license. See the file LICENSE distributed with this software for
++ * full license information.
++ ********************************************************************/
++
++#ifndef OSAL_SYS_H
++#define OSAL_SYS_H
++
++#include <FreeRTOS.h>
++#include <semphr.h>
++#include <event_groups.h>
++#include <queue.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++#define OS_MAIN extern "C" int _main
++
++#define OS_THREAD
++#define OS_MUTEX
++#define OS_SEM
++#define OS_EVENT
++#define OS_MBOX
++#define OS_TIMER
++
++typedef SemaphoreHandle_t os_mutex_t;
++typedef TaskHandle_t os_thread_t;
++typedef SemaphoreHandle_t os_sem_t;
++typedef EventGroupHandle_t  os_event_t;
++typedef QueueHandle_t os_mbox_t;
++
++typedef struct os_timer
++{
++   TimerHandle_t handle;
++   void(*fn) (struct os_timer *, void * arg);
++   void * arg;
++   uint32_t us;
++} os_timer_t;
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* OSAL_SYS_H */
+\ No newline at end of file
+diff --git a/samples/pn_dev/sampleapp_common.c b/samples/pn_dev/sampleapp_common.c
+index ef45a8d..28150c9 100644
+--- a/samples/pn_dev/sampleapp_common.c
++++ b/samples/pn_dev/sampleapp_common.c
+@@ -7,6 +7,7 @@
+  *
+  * www.rt-labs.com
+  * Copyright 2018 rt-labs AB, Sweden.
++ * Copyright 2023 NXP
+  *
+  * This software is dual-licensed under GPLv3 and a commercial
+  * license. See the file LICENSE.md distributed with this software for
+@@ -511,8 +512,8 @@ static int app_reset_ind (
+ static int app_signal_led_ind (pnet_t * net, void * arg, bool led_state)
+ {
+    APP_LOG_INFO ("Profinet signal LED indication. New state: %u\n", led_state);
+-
+-   app_set_led (APP_PROFINET_SIGNAL_LED_ID, led_state);
++   /* The SIGNAL_LED is not connected to the board for this sample app */
++   //app_set_led (APP_PROFINET_SIGNAL_LED_ID, led_state);
+    return 0;
+ }
+ 
+@@ -1234,7 +1235,7 @@ static void app_handle_cyclic_data (app_data_t * app)
+  *
+  * @param app             InOut:    Application handle
+  */
+-static void app_handle_demo_pnet_api (app_data_t * app)
++/* static void app_handle_demo_pnet_api (app_data_t * app)
+ {
+    uint16_t slot = 0;
+    bool found_inputsubslot = false;
+@@ -1249,7 +1250,7 @@ static void app_handle_demo_pnet_api (app_data_t * app)
+       .ch_grouping = PNET_DIAG_CH_INDIVIDUAL_CHANNEL,
+       .ch_direction = APP_DIAG_CHANNEL_DIRECTION};
+ 
+-   /* Loop though all subslots to find first digital 8-bit input subslot */
++   // Loop though all subslots to find first digital 8-bit input subslot 
+    while (!found_inputsubslot && (slot < PNET_MAX_SLOTS))
+    {
+       for (subslot_ix = 0;
+@@ -1302,9 +1303,9 @@ static void app_handle_demo_pnet_api (app_data_t * app)
+             APP_ALARM_USI,
+             APP_GSDML_ALARM_PAYLOAD_SIZE,
+             app->alarm_payload);
+-         app->alarm_allowed = false; /* Not allowed until ACK received */
++         app->alarm_allowed = false; // Not allowed until ACK received 
+ 
+-         /* todo handle return code on pnet_alarm_send_process_alarm */
++         // todo handle return code on pnet_alarm_send_process_alarm 
+       }
+       else
+       {
+@@ -1512,7 +1513,7 @@ static void app_handle_demo_pnet_api (app_data_t * app)
+       app->alarm_demo_state = APP_DEMO_STATE_ALARM_SEND;
+       break;
+    }
+-}
++}*/
+ 
+ void app_pnet_cfg_init_default (pnet_cfg_t * pnet_cfg)
+ {
+@@ -1544,7 +1545,7 @@ void app_pnet_cfg_init_default (pnet_cfg_t * pnet_cfg)
+  *
+  * @param app             InOut:    Application handle
+  */
+-static void update_button_states (app_data_t * app)
++/*static void update_button_states (app_data_t * app)
+ {
+    app->buttons_tick_counter++;
+    if (app->buttons_tick_counter > APP_TICKS_READ_BUTTONS)
+@@ -1553,7 +1554,7 @@ static void update_button_states (app_data_t * app)
+       app->button2_pressed = app_get_button (1);
+       app->buttons_tick_counter = 0;
+    }
+-}
++}*/
+ 
+ void app_loop_forever (void * arg)
+ {
+@@ -1591,20 +1592,20 @@ void app_loop_forever (void * arg)
+       {
+          os_event_clr (app->main_events, APP_EVENT_TIMER);
+ 
+-         update_button_states (app);
++         //update_button_states (app);
+          if (app_is_connected_to_controller (app))
+          {
+             app_handle_cyclic_data (app);
+          }
+ 
+          /* Run alarm demo function if button2 is pressed */
+-         if (
++         /*if (
+             (app->button2_pressed == true) &&
+             (app->button2_pressed_previous == false))
+          {
+             app_handle_demo_pnet_api (app);
+          }
+-         app->button2_pressed_previous = app->button2_pressed;
++         app->button2_pressed_previous = app->button2_pressed;*/
+ 
+          /* Run p-net stack */
+          pnet_handle_periodic (app->net);
+diff --git a/samples/pn_dev/sampleapp_common.h b/samples/pn_dev/sampleapp_common.h
+index a763e42..2e30bd0 100644
+--- a/samples/pn_dev/sampleapp_common.h
++++ b/samples/pn_dev/sampleapp_common.h
+@@ -7,6 +7,7 @@
+  *
+  * www.rt-labs.com
+  * Copyright 2018 rt-labs AB, Sweden.
++ * Copyright 2023 NXP
+  *
+  * This software is dual-licensed under GPLv3 and a commercial
+  * license. See the file LICENSE.md distributed with this software for
+@@ -33,7 +34,7 @@ extern "C" {
+ #define APP_MAIN_THREAD_PRIORITY  15
+ #define APP_MAIN_THREAD_STACKSIZE 4096 /* bytes */
+ 
+-#define APP_DATA_LED_ID            1
++#define APP_DATA_LED_ID            13
+ #define APP_PROFINET_SIGNAL_LED_ID 2
+ 
+ #define APP_TICKS_READ_BUTTONS 10
+@@ -50,9 +51,9 @@ typedef enum
+ /** Command line arguments for sample application */
+ typedef struct app_args
+ {
+-   char path_button1[PNET_MAX_FILE_FULLPATH_SIZE]; /** Terminated string */
+-   char path_button2[PNET_MAX_FILE_FULLPATH_SIZE]; /** Terminated string */
+-   char path_storage_directory[PNET_MAX_DIRECTORYPATH_SIZE]; /** Terminated */
++   //char path_button1[PNET_MAX_FILE_FULLPATH_SIZE]; /** Terminated string */
++   //char path_button2[PNET_MAX_FILE_FULLPATH_SIZE]; /** Terminated string */
++   //char path_storage_directory[PNET_MAX_DIRECTORYPATH_SIZE]; /** Terminated */
+    char station_name[PNET_STATION_NAME_MAX_SIZE]; /** Terminated string */
+    char eth_interfaces
+       [PNET_INTERFACE_NAME_MAX_SIZE * (PNET_MAX_PHYSICAL_PORTS + 1) +
+@@ -136,7 +137,7 @@ pnet_t * app_get_pnet_instance (app_data_t * app);
+  * @param id               In:    LED number, starting from 0.
+  * @param led_state        In:    LED state. Use true for on and false for off.
+  */
+-void app_set_led (uint16_t id, bool led_state);
++void app_set_led(int pin, bool led_state);
+ 
+ /**
+  * Read button state
+@@ -147,10 +148,10 @@ void app_set_led (uint16_t id, bool led_state);
+  * @param id               In:    Button number, starting from 0.
+  * @return  true if button is pressed, false if not
+  */
+-bool app_get_button (uint16_t id);
++//bool app_get_button (uint16_t id);
+ 
+ #ifdef __cplusplus
+ }
+ #endif
+ 
+-#endif /* SAMPLEAPP_COMMON_H */
++#endif /* SAMPLEAPP_COMMON_H */
+\ No newline at end of file
+diff --git a/src/ports/iMX8M/pnal.c b/src/ports/iMX8M/pnal.c
+new file mode 100644
+index 0000000..cf1efaa
+--- /dev/null
++++ b/src/ports/iMX8M/pnal.c
+@@ -0,0 +1,185 @@
++/*********************************************************************
++ *        _       _         _
++ *  _ __ | |_  _ | |  __ _ | |__   ___
++ * | '__|| __|(_)| | / _` || '_ \ / __|
++ * | |   | |_  _ | || (_| || |_) |\__ \
++ * |_|    \__|(_)|_| \__,_||_.__/ |___/
++ *
++ * www.rt-labs.com
++ * Copyright 2021 rt-labs AB, Sweden.
++ * Copyright 2023 NXP
++ *
++ * This software is dual-licensed under GPLv3 and a commercial
++ * license. See the file LICENSE.md distributed with this software for
++ * full license information.
++ ********************************************************************/
++
++#include "pnal.h"
++
++#include "options.h"
++#include "osal.h"
++#include "osal_log.h"
++
++#include <lwip/apps/snmp.h>
++#include <lwip/netif.h>
++#include <lwip/snmp.h>
++#include <lwip/sys.h>
++
++#include <stdarg.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++
++int pnal_set_ip_suite (
++   const char * interface_name,
++   const pnal_ipaddr_t * p_ipaddr,
++   const pnal_ipaddr_t * p_netmask,
++   const pnal_ipaddr_t * p_gw,
++   const char * hostname,
++   bool permanent)
++{
++   ip_addr_t ip_addr;
++   ip_addr_t ip_mask;
++   ip_addr_t ip_gw;
++
++   ip_addr.addr = htonl (*p_ipaddr);
++   ip_mask.addr = htonl (*p_netmask);
++   ip_gw.addr = htonl (*p_gw);
++   
++   LOCK_TCPIP_CORE();
++   netif_set_addr (netif_default, &ip_addr, &ip_mask, &ip_gw);
++   UNLOCK_TCPIP_CORE();
++
++   return 0;
++}
++
++int pnal_get_macaddress (const char * interface_name, pnal_ethaddr_t * mac_addr)
++{
++   memcpy (mac_addr, netif_default->hwaddr, sizeof (pnal_ethaddr_t));
++   return 0;
++}
++
++pnal_ipaddr_t pnal_get_ip_address (const char * interface_name)
++{
++   return htonl (netif_default->ip_addr.addr);
++}
++
++pnal_ipaddr_t pnal_get_netmask (const char * interface_name)
++{
++   return htonl (netif_default->netmask.addr);
++}
++
++pnal_ipaddr_t pnal_get_gateway (const char * interface_name)
++{
++   /* TODO Read the actual default gateway */
++
++   pnal_ipaddr_t ip;
++   pnal_ipaddr_t gateway;
++
++   ip = pnal_get_ip_address (interface_name);
++   gateway = (ip & 0xFFFFFF00) | 0x00000001;
++
++   return gateway;
++}
++
++int pnal_get_hostname (char * hostname)
++{
++   strcpy (hostname, netif_default->hostname);
++   return 0;
++}
++
++int pnal_get_ip_suite (
++   const char * interface_name,
++   pnal_ipaddr_t * p_ipaddr,
++   pnal_ipaddr_t * p_netmask,
++   pnal_ipaddr_t * p_gw,
++   char * hostname)
++{
++   int ret = -1;
++
++   *p_ipaddr = pnal_get_ip_address (interface_name);
++   *p_netmask = pnal_get_netmask (interface_name);
++   *p_gw = pnal_get_gateway (interface_name);
++   ret = pnal_get_hostname (hostname);
++
++   return ret;
++}
++
++int pnal_get_port_statistics (
++   const char * interface_name,
++   pnal_port_stats_t * port_stats)
++{
++   port_stats->if_in_octets = netif_default->mib2_counters.ifinoctets;
++   port_stats->if_in_errors = netif_default->mib2_counters.ifinerrors;
++   port_stats->if_in_discards = netif_default->mib2_counters.ifindiscards;
++   port_stats->if_out_octets = netif_default->mib2_counters.ifoutoctets;
++   port_stats->if_out_errors = netif_default->mib2_counters.ifouterrors;
++   port_stats->if_out_discards = netif_default->mib2_counters.ifoutdiscards;
++
++   return 0;
++}
++
++int pnal_get_interface_index (const char * interface_name)
++{
++   return 0;
++}
++
++int pnal_eth_get_status (const char * interface_name, pnal_eth_status_t * status)
++{
++   status->is_autonegotiation_supported = false;
++   status->is_autonegotiation_enabled = false;
++   status->autonegotiation_advertised_capabilities = 0;
++
++   status->operational_mau_type = PNAL_ETH_MAU_COPPER_100BaseTX_FULL_DUPLEX;
++   status->running = true;
++
++   return 0;
++}
++
++int pnal_save_file (
++   const char * fullpath,
++   const void * object_1,
++   size_t size_1,
++   const void * object_2,
++   size_t size_2)
++{
++   return -1;
++}
++
++void pnal_clear_file (const char * fullpath)
++{
++
++}
++
++int pnal_load_file (
++   const char * fullpath,
++   void * object_1,
++   size_t size_1,
++   void * object_2,
++   size_t size_2)
++{
++   return -1;
++}
++
++uint32_t pnal_get_system_uptime_10ms (void)
++{
++   uint32_t uptime = 0;
++
++   MIB2_COPY_SYSUPTIME_TO (&uptime);
++   return uptime;
++}
++
++pnal_buf_t * pnal_buf_alloc (uint16_t length)
++{
++   return pbuf_alloc (PBUF_RAW, length, PBUF_POOL);
++}
++
++void pnal_buf_free (pnal_buf_t * p)
++{
++   CC_ASSERT (pbuf_free (p) == 1);
++}
++
++uint8_t pnal_buf_header (pnal_buf_t * p, int16_t header_size_increment)
++{
++   return pbuf_header (p, header_size_increment);
++}
+\ No newline at end of file
+diff --git a/src/ports/iMX8M/pnal_config.h b/src/ports/iMX8M/pnal_config.h
+new file mode 100644
+index 0000000..3eed49e
+--- /dev/null
++++ b/src/ports/iMX8M/pnal_config.h
+@@ -0,0 +1,49 @@
++/*********************************************************************
++ *        _       _         _
++ *  _ __ | |_  _ | |  __ _ | |__   ___
++ * | '__|| __|(_)| | / _` || '_ \ / __|
++ * | |   | |_  _ | || (_| || |_) |\__ \
++ * |_|    \__|(_)|_| \__,_||_.__/ |___/
++ *
++ * www.rt-labs.com
++ * Copyright 2021 rt-labs AB, Sweden.
++ *
++ * This software is dual-licensed under GPLv3 and a commercial
++ * license. See the file LICENSE.md distributed with this software for
++ * full license information.
++ ********************************************************************/
++
++/**
++ * @file
++ * @brief PNAL-specific configuration
++ *
++ * This file contains definitions of configuration settings for the
++ * PNAL layer.
++ */
++
++#ifndef PNAL_CONFIG_H
++#define PNAL_CONFIG_H
++
++#include <stdint.h>
++#include <stddef.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++typedef struct pnal_thread_cfg
++{
++   uint32_t prio;
++   size_t stack_size;
++} pnal_thread_cfg_t;
++
++typedef struct pnal_cfg
++{
++   pnal_thread_cfg_t bg_worker_thread;
++} pnal_cfg_t;
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* PNAL_CONFIG_H */
+diff --git a/src/ports/iMX8M/pnal_eth.c b/src/ports/iMX8M/pnal_eth.c
+new file mode 100644
+index 0000000..7d213df
+--- /dev/null
++++ b/src/ports/iMX8M/pnal_eth.c
+@@ -0,0 +1,182 @@
++/*********************************************************************
++ *        _       _         _
++ *  _ __ | |_  _ | |  __ _ | |__   ___
++ * | '__|| __|(_)| | / _` || '_ \ / __|
++ * | |   | |_  _ | || (_| || |_) |\__ \
++ * |_|    \__|(_)|_| \__,_||_.__/ |___/
++ *
++ * www.rt-labs.com
++ * Copyright 2021 rt-labs AB, Sweden.
++ * Copyright 2023 NXP
++ *
++ * This software is dual-licensed under GPLv3 and a commercial
++ * license. See the file LICENSE.md distributed with this software for
++ * full license information.
++ ********************************************************************/
++
++/**
++ * @file
++ * @brief i.MX8M Ethernet related functions that use \a pnal_eth_handle_t
++ */
++
++#include "pnal.h"
++#include "osal_log.h"
++
++#include <lwip/netif.h>
++#include <lwip/apps/snmp_core.h>
++
++#define MAX_NUMBER_OF_IF 1
++
++struct pnal_eth_handle
++{
++   struct netif * netif;
++   pnal_eth_callback_t * eth_rx_callback;
++   void * arg;
++};
++
++static pnal_eth_handle_t interface[MAX_NUMBER_OF_IF];
++static int nic_index = 0;
++
++/**
++ * Find PNAL network interface handle
++ *
++ * @param netif            In:    lwip network interface.
++ * @return PNAL network interface handle corresponding to \a netif,
++ *         NULL otherwise.
++ */
++static pnal_eth_handle_t * pnal_eth_find_handle (struct netif * netif)
++{
++   pnal_eth_handle_t * handle;
++   int i;
++
++   for (i = 0; i < MAX_NUMBER_OF_IF; i++)
++   {
++      handle = &interface[i];
++      if (handle->netif == netif)
++      {
++         return handle;
++      }
++   }
++
++   return NULL;
++}
++
++/**
++ * Allocate PNAL network interface handle
++ *
++ * Handles are allocated from a static array and need never be freed.
++ *
++ * @return PNAL network interface handle if available,
++ *         NULL if too many handles were allocated.
++ */
++static pnal_eth_handle_t * pnal_eth_allocate_handle (void)
++{
++   pnal_eth_handle_t * handle;
++
++   if (nic_index < MAX_NUMBER_OF_IF)
++   {
++      handle = &interface[nic_index];
++      nic_index++;
++      return handle;
++   }
++   else
++   {
++      return NULL;
++   }
++}
++
++/**
++ * Process received Ethernet frame
++ *
++ * Called from lwip when an Ethernet frame is received with an EtherType
++ * lwip is not aware of (e.g. Profinet and LLDP).
++ *
++ * @param p_buf            InOut: Packet buffer containing Ethernet frame.
++ * @param netif            InOut: Network interface receiving the frame.
++ * @return ERR_OK if frame was processed and freed,
++ *         ERR_IF if it was ignored.
++ */
++static err_t pnal_eth_sys_recv (struct pbuf * p_buf, struct netif * netif)
++{
++   int processed;
++   pnal_eth_handle_t * handle;
++
++   handle = pnal_eth_find_handle (netif);
++   if (handle == NULL)
++   {
++      /* p-net not started yet, let lwIP handle frame */
++      return ERR_IF;
++   }
++
++   processed = handle->eth_rx_callback (handle, handle->arg, p_buf);
++   if (processed)
++   {
++      /* Frame handled and freed */
++      return ERR_OK;
++   }
++   else
++   {
++      /* Frame not handled */
++      return ERR_IF;
++   }
++}
++
++err_enum_t lwip_hook_unknown_eth_protocol (
++   struct pbuf * pbuf,
++   struct netif * netif)
++{
++   return pnal_eth_sys_recv (pbuf, netif);
++}
++
++pnal_eth_handle_t * pnal_eth_init (
++   const char * if_name,
++   pnal_ethertype_t receive_type,
++   const pnal_cfg_t * pnal_cfg,
++   pnal_eth_callback_t * callback,
++   void * arg)
++{
++   pnal_eth_handle_t * handle;
++   struct netif * netif;
++
++   (void)receive_type; /* Ignore, for now all frames will be received. */
++   
++   LOCK_TCPIP_CORE();
++
++   netif = netif_find (if_name);
++   if (netif == NULL)
++   {
++      os_log (LOG_LEVEL_ERROR, "Network interface \"%s\" not found!\n", if_name);
++      return NULL;
++   }
++
++   UNLOCK_TCPIP_CORE();
++
++   handle = pnal_eth_allocate_handle();
++   if (handle == NULL)
++   {
++      os_log (LOG_LEVEL_ERROR, "Too many network interfaces\n");
++      return NULL;
++   }
++
++   handle->arg = arg;
++   handle->eth_rx_callback = callback;
++   handle->netif = netif;
++
++   return handle;
++}
++
++int pnal_eth_send (pnal_eth_handle_t * handle, pnal_buf_t * buf)
++{
++   int ret = -1;
++
++   CC_ASSERT (handle->netif->linkoutput != NULL);
++
++   if (buf != NULL)
++   {
++      buf->tot_len = buf->len;
++
++      handle->netif->linkoutput (handle->netif, buf);
++      ret = buf->len;
++   }
++   return ret;
++}
+diff --git a/src/ports/iMX8M/pnal_sys.h b/src/ports/iMX8M/pnal_sys.h
+new file mode 100644
+index 0000000..ad9bfc4
+--- /dev/null
++++ b/src/ports/iMX8M/pnal_sys.h
+@@ -0,0 +1,35 @@
++/*********************************************************************
++ *        _       _         _
++ *  _ __ | |_  _ | |  __ _ | |__   ___
++ * | '__|| __|(_)| | / _` || '_ \ / __|
++ * | |   | |_  _ | || (_| || |_) |\__ \
++ * |_|    \__|(_)|_| \__,_||_.__/ |___/
++ *
++ * www.rt-labs.com
++ * Copyright 2021 rt-labs AB, Sweden.
++ *
++ * This software is dual-licensed under GPLv3 and a commercial
++ * license. See the file LICENSE.md distributed with this software for
++ * full license information.
++ ********************************************************************/
++
++#ifndef PNAL_SYS_H
++#define PNAL_SYS_H
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++#include <lwip/def.h> /* For htonl etc */
++#include <lwip/pbuf.h>
++
++#define PNAL_BUF_MAX_SIZE PBUF_POOL_BUFSIZE
++
++/* Re-use lwIP pbuf for rt-kernel */
++typedef struct pbuf pnal_buf_t;
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* PNAL_SYS_H */
+diff --git a/src/ports/iMX8M/pnal_udp.c b/src/ports/iMX8M/pnal_udp.c
+new file mode 100644
+index 0000000..0d0cd6c
+--- /dev/null
++++ b/src/ports/iMX8M/pnal_udp.c
+@@ -0,0 +1,110 @@
++/*********************************************************************
++ *        _       _         _
++ *  _ __ | |_  _ | |  __ _ | |__   ___
++ * | '__|| __|(_)| | / _` || '_ \ / __|
++ * | |   | |_  _ | || (_| || |_) |\__ \
++ * |_|    \__|(_)|_| \__,_||_.__/ |___/
++ *
++ * www.rt-labs.com
++ * Copyright 2021 rt-labs AB, Sweden.
++ *
++ * This software is dual-licensed under GPLv3 and a commercial
++ * license. See the file LICENSE.md distributed with this software for
++ * full license information.
++ ********************************************************************/
++
++#include "pnal.h"
++#include "osal_log.h"
++
++#include <lwip/sockets.h>
++#include <string.h>
++
++int pnal_udp_open (pnal_ipaddr_t addr, pnal_ipport_t port)
++{
++   struct sockaddr_in local;
++   int id;
++   const int enable = 1;
++
++   id = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP);
++   if (id == -1)
++   {
++      return -1;
++   }
++
++   if (setsockopt (id, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof (enable)) != 0)
++   {
++      goto error;
++   }
++
++   /* set IP and port number */
++   local = (struct sockaddr_in){
++      .sin_family = AF_INET,
++      .sin_addr.s_addr = htonl (addr),
++      .sin_port = htons (port),
++   };
++
++   if (bind (id, (struct sockaddr *)&local, sizeof (local)) != 0)
++   {
++      goto error;
++   }
++
++   return id;
++
++error:
++   close (id);
++   return -1;
++}
++
++int pnal_udp_sendto (
++   uint32_t id,
++   pnal_ipaddr_t dst_addr,
++   pnal_ipport_t dst_port,
++   const uint8_t * data,
++   int size)
++{
++   struct sockaddr_in remote;
++   int len;
++
++   remote = (struct sockaddr_in){
++      .sin_family = AF_INET,
++      .sin_addr.s_addr = htonl (dst_addr),
++      .sin_port = htons (dst_port),
++   };
++   len =
++      sendto (id, data, size, 0, (struct sockaddr *)&remote, sizeof (remote));
++
++   return len;
++}
++
++int pnal_udp_recvfrom (
++   uint32_t id,
++   pnal_ipaddr_t * src_addr,
++   pnal_ipport_t * src_port,
++   uint8_t * data,
++   int size)
++{
++   struct sockaddr_in remote;
++   socklen_t addr_len = sizeof (remote);
++   int len;
++
++   memset (&remote, 0, sizeof (remote));
++   len = recvfrom (
++      id,
++      data,
++      size,
++      MSG_DONTWAIT,
++      (struct sockaddr *)&remote,
++      &addr_len);
++   if (len > 0)
++   {
++      *src_addr = ntohl (remote.sin_addr.s_addr);
++      *src_port = ntohs (remote.sin_port);
++   }
++
++   return len;
++}
++
++void pnal_udp_close (uint32_t id)
++{
++   close (id);
++}

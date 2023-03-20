@@ -1,0 +1,1934 @@
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/FreeRTOSConfig.h b/evkmimx8mm/profinet_examples/profinet_blink/freertos/FreeRTOSConfig.h
+new file mode 100644
+index 000000000..98fffba19
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/FreeRTOSConfig.h
+@@ -0,0 +1,159 @@
++/*
++ * FreeRTOS Kernel V10.4.3 LTS Patch 2
++ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy of
++ * this software and associated documentation files (the "Software"), to deal in
++ * the Software without restriction, including without limitation the rights to
++ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
++ * the Software, and to permit persons to whom the Software is furnished to do so,
++ * subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in all
++ * copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
++ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
++ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
++ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
++ *
++ * https://www.FreeRTOS.org
++ * https://github.com/FreeRTOS
++ *
++ */
++
++#ifndef FREERTOS_CONFIG_H
++#define FREERTOS_CONFIG_H
++
++/*-----------------------------------------------------------
++ * Application specific definitions.
++ *
++ * These definitions should be adjusted for your particular hardware and
++ * application requirements.
++ *
++ * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
++ * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
++ *
++ * See http://www.freertos.org/a00110.html.
++ *----------------------------------------------------------*/
++
++#define configUSE_PREEMPTION                    1
++#define configUSE_TICKLESS_IDLE                 0
++#define configCPU_CLOCK_HZ                      (SystemCoreClock)
++#define configTICK_RATE_HZ                      ((TickType_t)1000)
++#define configMAX_PRIORITIES                    56
++#define configMINIMAL_STACK_SIZE                ((unsigned short)128)
++#define configMAX_TASK_NAME_LEN                 20
++#define configUSE_16_BIT_TICKS                  0
++#define configIDLE_SHOULD_YIELD                 1
++#define configUSE_TASK_NOTIFICATIONS            1
++#define configUSE_MUTEXES                       1
++#define configUSE_RECURSIVE_MUTEXES             1
++#define configUSE_COUNTING_SEMAPHORES           1
++#define configUSE_ALTERNATIVE_API               0 /* Deprecated! */
++#define configQUEUE_REGISTRY_SIZE               8
++#define configUSE_QUEUE_SETS                    0
++#define configUSE_TIME_SLICING                  0
++#define configUSE_NEWLIB_REENTRANT              0
++#define configENABLE_BACKWARD_COMPATIBILITY     0
++#define configNUM_THREAD_LOCAL_STORAGE_POINTERS 5
++#define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
++
++/* Used memory allocation (heap_x.c) */
++#define configFRTOS_MEMORY_SCHEME               3
++/* Tasks.c additions (e.g. Thread Aware Debug capability) */
++#define configINCLUDE_FREERTOS_TASK_C_ADDITIONS_H 1
++
++/* Memory allocation related definitions. */
++#define configSUPPORT_STATIC_ALLOCATION         0
++#define configSUPPORT_DYNAMIC_ALLOCATION        1
++#define configTOTAL_HEAP_SIZE                   ((size_t)(2000 * 1024))
++#define configAPPLICATION_ALLOCATED_HEAP        0
++
++/* Hook function related definitions. */
++#define configUSE_IDLE_HOOK                     0
++#define configUSE_TICK_HOOK                     0
++#define configCHECK_FOR_STACK_OVERFLOW          0
++#define configUSE_MALLOC_FAILED_HOOK            0
++#define configUSE_DAEMON_TASK_STARTUP_HOOK      0
++
++/* Run time and task stats gathering related definitions. */
++#define configGENERATE_RUN_TIME_STATS           0
++#define configUSE_TRACE_FACILITY                1
++#define configUSE_STATS_FORMATTING_FUNCTIONS    0
++
++/* Task aware debugging. */
++#define configRECORD_STACK_HIGH_ADDRESS         1
++
++/* Co-routine related definitions. */
++#define configUSE_CO_ROUTINES                   0
++#define configMAX_CO_ROUTINE_PRIORITIES         2
++
++/* Software timer related definitions. */
++#define configUSE_TIMERS                        1
++#define configTIMER_TASK_PRIORITY               ( 2 )
++#define configTIMER_QUEUE_LENGTH                10
++#define configTIMER_TASK_STACK_DEPTH            (configMINIMAL_STACK_SIZE * 2)
++
++/* Define to trap errors during development. */
++#define configASSERT(x) if(( x) == 0) {taskDISABLE_INTERRUPTS(); for (;;);}
++
++/* Optional functions - most linkers will remove unused functions anyway. */
++#define INCLUDE_vTaskPrioritySet                1
++#define INCLUDE_uxTaskPriorityGet               1
++#define INCLUDE_vTaskDelete                     1
++#define INCLUDE_vTaskSuspend                    1
++#define INCLUDE_vTaskDelayUntil                 1
++#define INCLUDE_vTaskDelay                      1
++#define INCLUDE_xTaskGetSchedulerState          1
++#define INCLUDE_xTaskGetCurrentTaskHandle       1
++#define INCLUDE_uxTaskGetStackHighWaterMark     0
++#define INCLUDE_xTaskGetIdleTaskHandle          0
++#define INCLUDE_eTaskGetState                   0
++#define INCLUDE_xTimerPendFunctionCall          1
++#define INCLUDE_xTaskAbortDelay                 0
++#define INCLUDE_xTaskGetHandle                  0
++#define INCLUDE_xTaskResumeFromISR              1
++
++
++
++#if defined(__ICCARM__)||defined(__CC_ARM)||defined(__GNUC__)
++    /* in Kinetis SDK, this contains the system core clock frequency */
++    #include <stdint.h>
++    extern uint32_t SystemCoreClock;
++#endif
++
++/* Interrupt nesting behaviour configuration. Cortex-M specific. */
++#ifdef __NVIC_PRIO_BITS
++/* __NVIC_PRIO_BITS will be specified when CMSIS is being used. */
++#define configPRIO_BITS __NVIC_PRIO_BITS
++#else
++#define configPRIO_BITS 4 /* 15 priority levels */
++#endif
++
++/* The lowest interrupt priority that can be used in a call to a "set priority"
++function. */
++#define configLIBRARY_LOWEST_INTERRUPT_PRIORITY ((1U << (configPRIO_BITS)) - 1U)
++
++/* The highest interrupt priority that can be used by any interrupt service
++routine that makes calls to interrupt safe FreeRTOS API functions.  DO NOT CALL
++INTERRUPT SAFE FREERTOS API FUNCTIONS FROM ANY INTERRUPT THAT HAS A HIGHER
++PRIORITY THAN THIS! (higher priorities are lower numeric values. */
++#define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY 2
++
++/* Interrupt priorities used by the kernel port layer itself.  These are generic
++to all Cortex-M ports, and do not rely on any particular library functions. */
++#define configKERNEL_INTERRUPT_PRIORITY (configLIBRARY_LOWEST_INTERRUPT_PRIORITY << (8 - configPRIO_BITS))
++/* !!!! configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to zero !!!!
++See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
++#define configMAX_SYSCALL_INTERRUPT_PRIORITY (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << (8 - configPRIO_BITS))
++
++/* Definitions that map the FreeRTOS port interrupt handlers to their CMSIS
++standard names. */
++#define vPortSVCHandler SVC_Handler
++#define xPortPendSVHandler PendSV_Handler
++#define xPortSysTickHandler SysTick_Handler
++
++#endif /* FREERTOS_CONFIG_H */
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/CMakeLists.txt b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/CMakeLists.txt
+new file mode 100644
+index 000000000..f80bda7a9
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/CMakeLists.txt
+@@ -0,0 +1,371 @@
++# CROSS COMPILER SETTING
++SET(CMAKE_SYSTEM_NAME Generic)
++CMAKE_MINIMUM_REQUIRED (VERSION 3.14)
++
++# THE VERSION NUMBER
++SET (Tutorial_VERSION_MAJOR 1)
++SET (Tutorial_VERSION_MINOR 0)
++
++SET (PROFINET_VERSION_MAJOR 0)
++SET (PROFINET_VERSION_MINOR 2)
++SET (PROFINET_VERSION_PATCH 0)
++
++# ENABLE ASM
++ENABLE_LANGUAGE(ASM)
++
++SET(CMAKE_STATIC_LIBRARY_PREFIX)
++SET(CMAKE_STATIC_LIBRARY_SUFFIX)
++
++SET(CMAKE_EXECUTABLE_LIBRARY_PREFIX)
++SET(CMAKE_EXECUTABLE_LIBRARY_SUFFIX)
++
++# Always use standard .o suffix
++set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
++set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE 1)
++
++list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
++
++# Options. See options.h.in for more information.
++
++option (PNET_OPTION_FAST_STARTUP "" ON)
++option (PNET_OPTION_PARAMETER_SERVER "" ON)
++option (PNET_OPTION_IR "" ON)
++option (PNET_OPTION_SR "" ON)
++option (PNET_OPTION_REDUNDANCY "" ON)
++option (PNET_OPTION_AR_VENDOR_BLOCKS "" ON)
++option (PNET_OPTION_RS "" ON)
++option (PNET_OPTION_MC_CR "" ON)
++option (PNET_OPTION_SRL "" OFF)
++option (PNET_OPTION_SNMP "" OFF)
++option (PNET_OPTION_DRIVER_ENABLE "Enable drivers. Specific driver must be enabled." OFF )
++
++option (PNET_USE_ATOMICS "Enable use of atomic operations (stdatomic.h)" OFF)
++
++set(PNET_MAX_AR                 2
++  CACHE STRING "Number of connections. Must be > 0. 'Automated RT Tester' uses 2, but only 1 connection AR is supported.")
++set(PNET_MAX_API                1
++  CACHE STRING "Number of Application Processes. Must be > 0")
++set(PNET_MAX_CR                 2
++  CACHE STRING "Per AR. At least 2 (1 input and 1 output). If unsure, use 2.")
++set(PNET_MAX_SLOTS              5
++  CACHE STRING "Per API. Should be > 1 to allow at least one I/O module")
++set(PNET_MAX_SUBSLOTS           3
++  CACHE STRING "Per slot (DAP requires 2 + PNET_MAX_PHYSICAL_PORTS)")
++set(PNET_MAX_DFP_IOCR           2
++  CACHE STRING "Allowed values are 0 (zero) or 2")
++set(PNET_MAX_PHYSICAL_PORTS     1
++  CACHE STRING "Max number of physical ports")
++set(PNET_MAX_LOG_BOOK_ENTRIES   16
++  CACHE STRING "")
++set(PNET_MAX_ALARMS             6
++  CACHE STRING "Per AR and queue. One queue for high and one for low priority alarms. 'Automated RT Tester' uses 6.")
++set(PNET_MAX_ALARM_PAYLOAD_DATA_SIZE 28
++  CACHE STRING "Min 24 or PNET_MAX_DIAG_MANUF_DATA_SIZE + 12. Max is 1408")
++set(PNET_MAX_DIAG_ITEMS         200
++  CACHE STRING "Total, per device. Max is 65534 items")
++set(PNET_MAX_DIAG_MANUF_DATA_SIZE 16
++  CACHE STRING "Min 5 for tests. Max is 1396")
++set(PNET_MAX_MC_CR              1
++  CACHE STRING "Per AR")
++set(PNET_MAX_AR_VENDOR_BLOCKS   1
++  CACHE STRING "Must be > 0")
++set(PNET_MAX_AR_VENDOR_BLOCK_DATA_LENGTH 512
++  CACHE STRING "")
++set(PNET_MAX_MAN_SPECIFIC_FAST_STARTUP_DATA_LENGTH 0
++  CACHE STRING "or 512 (bytes")
++set(PNET_MAX_SESSION_BUFFER_SIZE 4500
++  CACHE STRING "Max fragmented RPC request/response length. Max value 65535")
++set(PNET_MAX_DIRECTORYPATH_SIZE 240
++  CACHE STRING "Max size of directory path, including termination")
++set(PNET_MAX_FILENAME_SIZE 30
++  CACHE STRING "Max size of filename, including termination")
++set(PNET_MAX_PORT_DESCRIPTION_SIZE 60
++  CACHE STRING "Max size of port description, including termination")
++
++set(LOG_STATE_VALUES "ON;OFF")
++set(LOG_LEVEL_VALUES "DEBUG;INFO;WARNING;ERROR;FATAL")
++
++set(LOG_LEVEL FATAL CACHE STRING "default log level")
++set_property(CACHE LOG_LEVEL PROPERTY STRINGS ${LOG_LEVEL_VALUES})
++
++set(PF_ETH_LOG ON CACHE STRING "pf_eth log")
++set_property(CACHE PF_ETH_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
++
++set(PF_LLDP_LOG ON CACHE STRING "pf_lldp log")
++set_property(CACHE PF_LLDP_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
++
++set(PF_SNMP_LOG OFF CACHE STRING "pf_snmp log")
++set_property(CACHE PF_SNMP_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
++
++set(PF_CPM_LOG ON CACHE STRING "pf_cpm log")
++set_property(CACHE PF_CPM_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
++
++set(PF_PPM_LOG ON CACHE STRING "pf_ppm log")
++set_property(CACHE PF_PPM_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
++
++set(PF_DCP_LOG ON CACHE STRING "pf_dcp log")
++set_property(CACHE PF_DCP_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
++
++set(PF_RPC_LOG ON CACHE STRING "pf_rpc log")
++set_property(CACHE PF_RPC_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
++
++set(PF_ALARM_LOG ON CACHE STRING "pf_alarm log")
++set_property(CACHE PF_ALARM_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
++
++set(PF_AL_BUF_LOG ON CACHE STRING "pf_alarm_buffer log")
++set_property(CACHE PF_AL_BUF_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
++
++set(PF_PNAL_LOG ON CACHE STRING "PNAL log")
++set_property(CACHE PF_PNAL_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
++
++set(PNET_LOG ON CACHE STRING "PNET log")
++set_property(CACHE PNET_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
++
++# CURRENT DIRECTORY
++SET(ProjDirPath ${CMAKE_CURRENT_SOURCE_DIR})
++
++SET(EXECUTABLE_OUTPUT_PATH ${ProjDirPath}/${CMAKE_BUILD_TYPE})
++SET(LIBRARY_OUTPUT_PATH ${ProjDirPath}/${CMAKE_BUILD_TYPE})
++SET(LWIP_DIR ${ProjDirPath}/../../../../../../middleware/lwip)
++SET(PNET_DIR ${ProjDirPath}/../../../../../../middleware/p-net)
++SET(OSAL_DIR ${ProjDirPath}/../../../../../../middleware/p-net/osal)
++SET(LWIP_CONTRIB_DIR ${LWIP_DIR}/contrib)
++SET(LWIP_INCLUDE_DIRS
++    "${LWIP_DIR}/src/include"
++    "${LWIP_DIR}/port"
++    "${LWIP_DIR}/port/arch"
++    "${ProjDirPath}/../include"
++    "${LWIP_CONTRIB_DIR}/apps/tcpecho"
++    )
++SET(PNET_INCLUDE_DIRS
++    "${PNET_DIR}/include"
++    "${PNET_DIR}/samples/pn_dev"
++    "${PNET_DIR}/src"
++    "${PNET_DIR}/src/ports/iMX8M"
++    "${PNET_DIR}"
++    )
++
++SET(RTOS_DIR ${ProjDirPath}/../../../../../../rtos)
++SET(RTOS_INCLUDE_DIRS 
++    "${RTOS_DIR}/freertos/freertos_kernel/include"
++    "${RTOS_DIR}/freertos/freertos_kernel"
++    "${RTOS_DIR}/freertos/freertos_kernel/portable/GCC/ARM_CM4F"
++    )
++
++include(${LWIP_DIR}/src/Filelists.cmake)
++
++project(p-net_blink_freertos)
++
++set(MCUX_SDK_PROJECT_NAME p-net_blink_freertos.elf)
++
++include(${ProjDirPath}/flags.cmake)
++include(${ProjDirPath}/config.cmake)
++
++include(GenerateExportHeader)
++
++# Generate version numbers
++configure_file (
++  ${PNET_DIR}/pnet_version.h.in
++  include/pnet_version.h
++  )
++
++# Generate config options
++configure_file (
++  ${PNET_DIR}/options.h.in
++  src/options.h
++  )
++  
++configure_file (
++  ${PNET_DIR}/pnet_options.h.in
++  include/pnet_options.h
++  )
++
++add_library(profinet "")
++add_executable(pn_dev "")
++
++include(${PNET_DIR}/cmake/iMX8M.cmake)
++
++generate_export_header(profinet BASE_NAME pnet EXPORT_FILE_NAME include/pnet_export.h)
++
++set_target_properties (profinet pn_dev
++  PROPERTIES
++  C_STANDARD 99
++  )
++
++target_include_directories(profinet
++    PUBLIC
++    $<BUILD_INTERFACE:${PROFINET_SOURCE_DIR}/include>
++    $<BUILD_INTERFACE:${PROFINET_BINARY_DIR}/include>
++    $<INSTALL_INTERFACE:include>
++    PRIVATE
++    ${PROFINET_BINARY_DIR}/src
++    src
++    src/common
++    src/device
++)
++
++install (FILES
++    ${OSAL_DIR}/src/freertos/sys/osal_cc.h
++    ${OSAL_DIR}/src/freertos/sys/osal_sys.h
++    DESTINATION ${OSAL_DIR}/include/sys)
++
++include_directories(
++  "${RTOS_DIR}/freertos/freertos_kernel/include"
++  "${ProjDirPath}/.."
++  "${ProjDirPath}/../../../../../../core/boards/evkmimx8mm/"
++  "${LWIP_INCLUDE_DIRS}"
++  "${ProjDirPath}/../../../../../../core/CMSIS/Core/Include"
++  "${OSAL_DIR}/include"
++  "${OSAL_DIR}/src/freertos"
++  "${RTOS_INCLUDE_DIRS}"
++  "${PNET_DIR}/include"
++  "${PNET_DIR}/src"
++  "${PNET_DIR}/src/common" 
++  "${PNET_DIR}/src/device"
++  "${PNET_DIR}/src/ports"
++  include
++  src
++  "${OSAL_DIR}/include"
++  )
++
++add_executable(${MCUX_SDK_PROJECT_NAME}
++  "${ProjDirPath}/../p-net_blink_freertos.c"
++  "${ProjDirPath}/../pin_mux.c"
++  "${ProjDirPath}/../pin_mux.h"
++  "${ProjDirPath}/../FreeRTOSConfig.h"
++  "${ProjDirPath}/../../../../../../core/boards/evkmimx8mm/board.c"
++  "${ProjDirPath}/../../../../../../core/boards/evkmimx8mm/board.h"
++  "${ProjDirPath}/../../../../../../core/boards/evkmimx8mm/clock_config.c"
++  "${ProjDirPath}/../../../../../../core/boards/evkmimx8mm/clock_config.h"
++  ${lwipcore_SRCS}
++  ${lwipcore4_SRCS}
++  "${PNET_DIR}/samples/pn_dev/sampleapp_common.c"
++  "${PNET_DIR}/samples/pn_dev/sampleapp_common.h"
++  "${PNET_DIR}/samples/pn_dev/app_gsdml.h"
++  "${ProjDirPath}/../../../../../../core/CMSIS/Core/Include/cmsis_gcc.h"
++  "${LWIP_DIR}/port/enet_ethernetif.c"
++  "${LWIP_DIR}/port/enet_ethernetif_imx.c"
++  "${OSAL_DIR}/src/freertos/osal_log.c"
++  "${OSAL_DIR}/src/freertos/osal.c"
++  "${OSAL_DIR}/include/osal_log.h"
++  "${OSAL_DIR}/include/osal.h"
++  "${PNET_DIR}/samples/pn_dev/app_log.c"
++  "${PNET_DIR}/samples/pn_dev/app_utils.c"
++  "${PNET_DIR}/samples/pn_dev/app_data.c"
++  "${PNET_DIR}/samples/pn_dev/app_gsdml.c"
++  "${PNET_DIR}/src/device/pnet_api.c"
++  "${PNET_DIR}/src/ports/iMX8M/pnal_eth.c"
++  "${PNET_DIR}/src/ports/iMX8M/pnal_sys.h"
++  "${PNET_DIR}/src/ports/iMX8M/pnal_config.h"
++  "${PNET_DIR}/src/ports/iMX8M/pnal_udp.c"
++  "${PNET_DIR}/src/ports/iMX8M/pnal.c"
++  "${RTOS_DIR}/freertos/freertos_kernel/tasks.c"
++  "${RTOS_DIR}/freertos/freertos_kernel/timers.c"
++  "${RTOS_DIR}/freertos/freertos_kernel/queue.c"
++  "${RTOS_DIR}/freertos/freertos_kernel/list.c"
++  "${RTOS_DIR}/freertos/freertos_kernel/event_groups.c"
++  "${PNET_DIR}/src/device/pf_fspm.c"
++  "${PNET_DIR}/src/common/pf_cpm.c"
++  "${PNET_DIR}/src/common/pf_ppm.c"
++  ${PNET_DIR}/src/device/pf_block_reader.c
++  ${PNET_DIR}/src/device/pf_block_writer.c
++  ${PNET_DIR}/src/device/pf_fspm.c
++  ${PNET_DIR}/src/device/pf_diag.c
++  ${PNET_DIR}/src/device/pf_cmdev.c
++  ${PNET_DIR}/src/device/pf_cmdmc.c
++  ${PNET_DIR}/src/device/pf_cmina.c
++  ${PNET_DIR}/src/device/pf_cmio.c
++  ${PNET_DIR}/src/device/pf_cmpbe.c
++  ${PNET_DIR}/src/device/pf_cmrdr.c
++  ${PNET_DIR}/src/device/pf_cmrpc.c
++  ${PNET_DIR}/src/device/pf_cmrpc_epm.c
++  ${PNET_DIR}/src/device/pf_cmrpc_helpers.c
++  ${PNET_DIR}/src/device/pf_cmrs.c
++  ${PNET_DIR}/src/device/pf_cmsm.c
++  ${PNET_DIR}/src/device/pf_cmsu.c
++  ${PNET_DIR}/src/device/pf_cmwrr.c
++  ${PNET_DIR}/src/device/pf_pdport.c
++  ${PNET_DIR}/src/device/pf_port.c
++  ${PNET_DIR}/src/common/pf_alarm.c
++  ${PNET_DIR}/src/common/pf_bg_worker.c
++  ${PNET_DIR}/src/common/pf_cpm.c
++  ${PNET_DIR}/src/common/pf_cpm_driver_sw.c
++  ${PNET_DIR}/src/common/pf_dcp.c
++  ${PNET_DIR}/src/common/pf_ppm.c
++  ${PNET_DIR}/src/common/pf_ppm_driver_sw.c
++  ${PNET_DIR}/src/common/pf_ptcp.c
++  ${PNET_DIR}/src/common/pf_scheduler.c
++  ${PNET_DIR}/src/common/pf_eth.c
++  ${PNET_DIR}/src/common/pf_file.c
++  ${PNET_DIR}/src/common/pf_lldp.c
++  ${PNET_DIR}/src/common/pf_udp.c
++  ${RTOS_DIR}/freertos/freertos_kernel/portable/GCC/ARM_CM4F/port.c
++  ${RTOS_DIR}/freertos/freertos_kernel/portable/MemMang/heap_3.c
++  ${LWIP_DIR}/port/sys_arch.c
++)
++
++SET(PROFINET_SOURCE_DIR ${PNET_DIR})
++
++add_subdirectory("${PNET_DIR}/src" "${ProjDirPath}/bin")
++
++target_include_directories(${MCUX_SDK_PROJECT_NAME} PRIVATE
++    ${ProjDirPath}/..
++    ${ProjDirPath}/../../../../../../core/boards/evkmimx8mm/
++    ${LWIP_INCLUDE_DIRS}
++    ${PNET_INCLUDE_DIRS}
++    ${RTOS_INCLUDE_DIRS}
++)
++
++set(CMAKE_MODULE_PATH
++    ${ProjDirPath}/../../../../../../core/
++    ${ProjDirPath}/../../../../../../core/drivers/enet/
++    ${ProjDirPath}/../../../../../../core/components/phy/device/phyar8031/
++    ${ProjDirPath}/../../../../../../core/components/phy/
++    ${ProjDirPath}/../../../../../../core/components/phy/mdio/enet/
++    ${ProjDirPath}/../../../../../../core/utilities/debug_console/
++    ${ProjDirPath}/../../../../../../rtos/freertos/freertos_kernel/
++    ${ProjDirPath}/../../../../../../components/serial_manager
++    ${ProjDirPath}/../../../../../../components/uart
++    ${ProjDirPath}/../../../../../../CMSIS/Core/Include
++)
++
++#Include Entry cmake component
++include(all_devices)
++
++# include modules
++include(driver_mdio-enet)
++include(driver_phy-device-ar8031)
++include(utility_debug_console_lite)
++include(utility_assert_lite)
++include(driver_clock)
++include(driver_enet)
++include(driver_common)
++include(driver_rdc)
++include(device_CMSIS)
++include(component_iuart_adapter)
++include(component_lists)
++include(driver_iuart)
++include(device_startup)
++include(driver_igpio)
++include(driver_mdio-common)
++include(CMSIS_Include_core_cm)
++include(driver_phy-common)
++include(utilities_misc_utilities)
++include(device_system)
++include(driver_gpt)
++include(middleware_freertos-kernel_MIMX8MM6)
++include(CMSIS_Include_core_cm)
++include(middleware_freertos-kernel_heap_3)
++
++TARGET_LINK_LIBRARIES(${MCUX_SDK_PROJECT_NAME} PRIVATE -Wl,--start-group)
++
++target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE m)
++target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE c)
++target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE gcc)
++target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE nosys)
++target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE lwipcore)
++
++TARGET_LINK_LIBRARIES(${MCUX_SDK_PROJECT_NAME} PRIVATE -Wl,--end-group)
++
++ADD_CUSTOM_COMMAND(TARGET ${MCUX_SDK_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_OBJCOPY}
++-Obinary ${EXECUTABLE_OUTPUT_PATH}/${MCUX_SDK_PROJECT_NAME} ${EXECUTABLE_OUTPUT_PATH}/p-net_blink_freertos.bin)
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/MIMX8MM6xxxxx_cm4_ddr_ram.ld b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/MIMX8MM6xxxxx_cm4_ddr_ram.ld
+new file mode 100644
+index 000000000..e01f0961c
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/MIMX8MM6xxxxx_cm4_ddr_ram.ld
+@@ -0,0 +1,228 @@
++/*
++** ###################################################################
++**     Processors:          MIMX8MM6CVTKZ
++**                          MIMX8MM6DVTLZ
++**
++**     Compiler:            GNU C Compiler
++**     Reference manual:    MX8MMRM, Rev. 0, 02/2019
++**     Version:             rev. 4.0, 2019-02-18
++**     Build:               b200330
++**
++**     Abstract:
++**         Linker file for the GNU C Compiler
++**
++**     Copyright 2016 Freescale Semiconductor, Inc.
++**     Copyright 2016-2020 NXP
++**     All rights reserved.
++**
++**     SPDX-License-Identifier: BSD-3-Clause
++**
++**     http:                 www.nxp.com
++**     mail:                 support@nxp.com
++**
++** ###################################################################
++*/
++
++/* Entry Point */
++ENTRY(Reset_Handler)
++
++HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 1000*1024;
++STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 60*1024;
++
++/* Specify the memory areas */
++MEMORY
++{
++  m_interrupts          (RX)  : ORIGIN = 0x80000000, LENGTH = 0x00000240
++  m_text                (RX)  : ORIGIN = 0x80000240, LENGTH = 0x001FFDC0
++  m_data                (RW)  : ORIGIN = 0x80200000, LENGTH = 0x00200000
++  m_data2               (RW)  : ORIGIN = 0x80400000, LENGTH = 0x00C00000
++}
++
++/* Define output sections */
++SECTIONS
++{
++/* The startup code goes first into internal RAM */
++  .interrupts :
++  {
++    __VECTOR_TABLE = .;
++    __Vectors = .;
++    . = ALIGN(4);
++    KEEP(*(.isr_vector))     /* Startup code */
++    . = ALIGN(4);
++  } > m_interrupts
++
++  .resource_table :
++  {
++    . = ALIGN(8);
++    KEEP(*(.resource_table)) /* Resource table */
++    . = ALIGN(8);
++  } > m_text
++
++  /* The program code and other data goes into internal RAM */
++  .text :
++  {
++    . = ALIGN(4);
++    *(.text)                 /* .text sections (code) */
++    *(.text*)                /* .text* sections (code) */
++    *(.rodata)               /* .rodata sections (constants, strings, etc.) */
++    *(.rodata*)              /* .rodata* sections (constants, strings, etc.) */
++    *(.glue_7)               /* glue arm to thumb code */
++    *(.glue_7t)              /* glue thumb to arm code */
++    *(.eh_frame)
++    KEEP (*(.init))
++    KEEP (*(.fini))
++    . = ALIGN(4);
++  } > m_text
++
++  .ARM.extab :
++  {
++    *(.ARM.extab* .gnu.linkonce.armextab.*)
++  } > m_text
++
++  .ARM :
++  {
++    __exidx_start = .;
++    *(.ARM.exidx*)
++    __exidx_end = .;
++  } > m_text
++
++ .ctors :
++  {
++    __CTOR_LIST__ = .;
++    /* gcc uses crtbegin.o to find the start of
++       the constructors, so we make sure it is
++       first.  Because this is a wildcard, it
++       doesn't matter if the user does not
++       actually link against crtbegin.o; the
++       linker won't look for a file to match a
++       wildcard.  The wildcard also means that it
++       doesn't matter which directory crtbegin.o
++       is in.  */
++    KEEP (*crtbegin.o(.ctors))
++    KEEP (*crtbegin?.o(.ctors))
++    /* We don't want to include the .ctor section from
++       from the crtend.o file until after the sorted ctors.
++       The .ctor section from the crtend file contains the
++       end of ctors marker and it must be last */
++    KEEP (*(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors))
++    KEEP (*(SORT(.ctors.*)))
++    KEEP (*(.ctors))
++    __CTOR_END__ = .;
++  } > m_text
++
++  .dtors :
++  {
++    __DTOR_LIST__ = .;
++    KEEP (*crtbegin.o(.dtors))
++    KEEP (*crtbegin?.o(.dtors))
++    KEEP (*(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors))
++    KEEP (*(SORT(.dtors.*)))
++    KEEP (*(.dtors))
++    __DTOR_END__ = .;
++  } > m_text
++
++  .preinit_array :
++  {
++    PROVIDE_HIDDEN (__preinit_array_start = .);
++    KEEP (*(.preinit_array*))
++    PROVIDE_HIDDEN (__preinit_array_end = .);
++  } > m_text
++
++  .init_array :
++  {
++    PROVIDE_HIDDEN (__init_array_start = .);
++    KEEP (*(SORT(.init_array.*)))
++    KEEP (*(.init_array*))
++    PROVIDE_HIDDEN (__init_array_end = .);
++  } > m_text
++
++  .fini_array :
++  {
++    PROVIDE_HIDDEN (__fini_array_start = .);
++    KEEP (*(SORT(.fini_array.*)))
++    KEEP (*(.fini_array*))
++    PROVIDE_HIDDEN (__fini_array_end = .);
++  } > m_text
++
++  __etext = .;    /* define a global symbol at end of code */
++  __DATA_ROM = .; /* Symbol is used by startup for data initialization */
++
++  .data : AT(__DATA_ROM)
++  {
++    . = ALIGN(4);
++    __DATA_RAM = .;
++    __data_start__ = .;      /* create a global symbol at data start */
++    *(.data)                 /* .data sections */
++    *(.data*)                /* .data* sections */
++    KEEP(*(.jcr*))
++    . = ALIGN(4);
++    __data_end__ = .;        /* define a global symbol at data end */
++  } > m_data
++
++  __CACHE_REGION_START = ORIGIN(m_interrupts);
++  __CACHE_REGION_SIZE  = LENGTH(m_interrupts) + LENGTH(m_text) + LENGTH(m_data);
++
++  __NDATA_ROM = __DATA_ROM + SIZEOF(.data); /* Symbol is used by startup for ncache data initialization */
++
++  .ncache.init : AT(__NDATA_ROM)
++  {
++    __noncachedata_start__ = .;   /* create a global symbol at ncache data start */
++    *(NonCacheable.init)
++    . = ALIGN(4);
++    __noncachedata_init_end__ = .;   /* create a global symbol at initialized ncache data end */
++  } > m_data2
++
++  . = __noncachedata_init_end__;
++  .ncache :
++  {
++    *(NonCacheable)
++    . = ALIGN(4);
++    __noncachedata_end__ = .;     /* define a global symbol at ncache data end */
++  } > m_data2
++
++  __DATA_END = __DATA_ROM + (__data_end__ - __data_start__);
++  text_end = ORIGIN(m_text) + LENGTH(m_text);
++  ASSERT(__DATA_END <= text_end, "region m_text overflowed with text and data")
++
++  /* Uninitialized data section */
++  .bss :
++  {
++    /* This is used by the startup in order to initialize the .bss section */
++    . = ALIGN(4);
++    __START_BSS = .;
++    __bss_start__ = .;
++    *(.bss)
++    *(.bss*)
++    *(COMMON)
++    . = ALIGN(4);
++    __bss_end__ = .;
++    __END_BSS = .;
++  } > m_data
++
++  .heap :
++  {
++    . = ALIGN(8);
++    __end__ = .;
++    PROVIDE(end = .);
++    __HeapBase = .;
++    . += HEAP_SIZE;
++    __HeapLimit = .;
++    __heap_limit = .; /* Add for _sbrk */
++  } > m_data
++
++  .stack :
++  {
++    . = ALIGN(8);
++    . += STACK_SIZE;
++  } > m_data
++
++  /* Initializes stack on the end of block */
++  __StackTop   = ORIGIN(m_data) + LENGTH(m_data);
++  __StackLimit = __StackTop - STACK_SIZE;
++  PROVIDE(__stack = __StackTop);
++
++  .ARM.attributes 0 : { *(.ARM.attributes) }
++
++  ASSERT(__StackLimit >= __HeapLimit, "region m_data overflowed with stack and heap")
++}
++
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/build_ddr_debug.sh b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/build_ddr_debug.sh
+new file mode 100755
+index 000000000..04731800b
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/build_ddr_debug.sh
+@@ -0,0 +1,7 @@
++#!/bin/sh
++if [ -d "CMakeFiles" ];then rm -rf CMakeFiles; fi
++if [ -f "Makefile" ];then rm -f Makefile; fi
++if [ -f "cmake_install.cmake" ];then rm -f cmake_install.cmake; fi
++if [ -f "CMakeCache.txt" ];then rm -f CMakeCache.txt; fi
++cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE="../../../../../../core/tools/cmake_toolchain_files/armgcc.cmake" -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=ddr_debug  .
++make -j 2>&1 | tee build_log.txt
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/build_ddr_release.sh b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/build_ddr_release.sh
+new file mode 100755
+index 000000000..ccef8c9fd
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/build_ddr_release.sh
+@@ -0,0 +1,7 @@
++#!/bin/sh
++if [ -d "CMakeFiles" ];then rm -rf CMakeFiles; fi
++if [ -f "Makefile" ];then rm -f Makefile; fi
++if [ -f "cmake_install.cmake" ];then rm -f cmake_install.cmake; fi
++if [ -f "CMakeCache.txt" ];then rm -f CMakeCache.txt; fi
++cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE="../../../../../../core/tools/cmake_toolchain_files/armgcc.cmake" -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=ddr_release  .
++make -j 2>&1 | tee build_log.txt
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/clean.sh b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/clean.sh
+new file mode 100755
+index 000000000..23c0d28c7
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/clean.sh
+@@ -0,0 +1,7 @@
++#!/bin/sh
++rm -rf ddr_debug ddr_release CMakeFiles
++rm -r Makefile cmake_install.cmake CMakeCache.txt
++rm CMakeDoxyfile.in CMakeDoxygenDefaults.cmake
++rm compile_commands.json
++rm build_log.txt output.map
++rm -rf bin include src
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/config.cmake b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/config.cmake
+new file mode 100755
+index 000000000..e88a1db4b
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/config.cmake
+@@ -0,0 +1,4 @@
++# config to select component, the format is CONFIG_USE_${component}
++set(CONFIG_USE_driver_iuart true)
++set(MCUX_DEVICE "MIMX8MM6")
++
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/flags.cmake b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/flags.cmake
+new file mode 100755
+index 000000000..b013bf6dc
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/armgcc/flags.cmake
+@@ -0,0 +1,364 @@
++SET(CMAKE_ASM_FLAGS_DEBUG " \
++    ${CMAKE_ASM_FLAGS_DEBUG} \
++    -DDEBUG \
++    -D__STARTUP_CLEAR_BSS \
++    -D__STARTUP_INITIALIZE_NONCACHEDATA \
++    -mcpu=cortex-m4 \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -mthumb \
++")
++SET(CMAKE_ASM_FLAGS_RELEASE " \
++    ${CMAKE_ASM_FLAGS_RELEASE} \
++    -DNDEBUG \
++    -D__STARTUP_CLEAR_BSS \
++    -D__STARTUP_INITIALIZE_NONCACHEDATA \
++    -mcpu=cortex-m4 \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -mthumb \
++")
++SET(CMAKE_ASM_FLAGS_DDR_DEBUG " \
++    ${CMAKE_ASM_FLAGS_DDR_DEBUG} \
++    -D__STARTUP_CLEAR_BSS \
++    -D__STARTUP_INITIALIZE_NONCACHEDATA \
++    -mcpu=cortex-m4 \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -mthumb \
++")
++SET(CMAKE_ASM_FLAGS_DDR_RELEASE " \
++    ${CMAKE_ASM_FLAGS_DDR_RELEASE} \
++    -D__STARTUP_CLEAR_BSS \
++    -D__STARTUP_INITIALIZE_NONCACHEDATA \
++    -mcpu=cortex-m4 \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -mthumb \
++")
++SET(CMAKE_C_FLAGS_DEBUG " \
++    ${CMAKE_C_FLAGS_DEBUG} \
++    -DDEBUG \
++    -DCPU_MIMX8MM6DVTLZ \
++    -DCPU_MIMX8MM6DVTLZ_cm4 \
++    -DPRINTF_FLOAT_ENABLE=0 \
++    -DSCANF_FLOAT_ENABLE=0 \
++    -DPRINTF_ADVANCED_ENABLE=0 \
++    -DSCANF_ADVANCED_ENABLE=0 \
++    -DMCUXPRESSO_SDK \
++    -DUSE_RTOS=1 \
++    -DSDK_OS_FREE_RTOS \
++    -g \
++    -O0 \
++    -mcpu=cortex-m4 \
++    -Wall \
++    -Wno-address-of-packed-member \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -mthumb \
++    -MMD \
++    -MP \
++    -fno-common \
++    -ffunction-sections \
++    -fdata-sections \
++    -ffreestanding \
++    -fno-builtin \
++    -mapcs \
++    -std=gnu99 \
++")
++SET(CMAKE_C_FLAGS_RELEASE " \
++    ${CMAKE_C_FLAGS_RELEASE} \
++    -DNDEBUG \
++    -DCPU_MIMX8MM6DVTLZ \
++    -DCPU_MIMX8MM6DVTLZ_cm4 \
++    -DPRINTF_FLOAT_ENABLE=0 \
++    -DSCANF_FLOAT_ENABLE=0 \
++    -DPRINTF_ADVANCED_ENABLE=0 \
++    -DSCANF_ADVANCED_ENABLE=0 \
++    -DMCUXPRESSO_SDK \
++    -DUSE_RTOS=1 \
++    -DSDK_OS_FREE_RTOS \
++    -O0 \
++    -mcpu=cortex-m4 \
++    -Wall \
++    -Wno-address-of-packed-member \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -mthumb \
++    -MMD \
++    -MP \
++    -fno-common \
++    -ffunction-sections \
++    -fdata-sections \
++    -ffreestanding \
++    -fno-builtin \
++    -mapcs \
++    -std=gnu99 \
++")
++SET(CMAKE_C_FLAGS_DDR_DEBUG " \
++    ${CMAKE_C_FLAGS_DDR_DEBUG} \
++    -DCPU_MIMX8MM6DVTLZ \
++    -DCPU_MIMX8MM6DVTLZ_cm4 \
++    -DPRINTF_FLOAT_ENABLE=0 \
++    -DSCANF_FLOAT_ENABLE=0 \
++    -DPRINTF_ADVANCED_ENABLE=0 \
++    -DSCANF_ADVANCED_ENABLE=0 \
++    -DMCUXPRESSO_SDK \
++    -DUSE_RTOS=1 \
++    -DSDK_OS_FREE_RTOS \
++    -g \
++    -O0 \
++    -mcpu=cortex-m4 \
++    -Wall \
++    -Wno-address-of-packed-member \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -mthumb \
++    -MMD \
++    -MP \
++    -fno-common \
++    -ffunction-sections \
++    -fdata-sections \
++    -ffreestanding \
++    -fno-builtin \
++    -mapcs \
++    -std=gnu99 \
++")
++SET(CMAKE_C_FLAGS_DDR_RELEASE " \
++    ${CMAKE_C_FLAGS_DDR_RELEASE} \
++    -DCPU_MIMX8MM6DVTLZ \
++    -DCPU_MIMX8MM6DVTLZ_cm4 \
++    -DPRINTF_FLOAT_ENABLE=0 \
++    -DSCANF_FLOAT_ENABLE=0 \
++    -DPRINTF_ADVANCED_ENABLE=0 \
++    -DSCANF_ADVANCED_ENABLE=0 \
++    -DMCUXPRESSO_SDK \
++    -DUSE_RTOS=1 \
++    -DSDK_OS_FREE_RTOS \
++    -Os \
++    -mcpu=cortex-m4 \
++    -Wall \
++    -Wno-address-of-packed-member \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -mthumb \
++    -MMD \
++    -MP \
++    -fno-common \
++    -ffunction-sections \
++    -fdata-sections \
++    -ffreestanding \
++    -fno-builtin \
++    -mapcs \
++    -std=gnu99 \
++")
++SET(CMAKE_CXX_FLAGS_DEBUG " \
++    ${CMAKE_CXX_FLAGS_DEBUG} \
++    -DDEBUG \
++    -DCPU_MIMX8MM6DVTLZ \
++    -DCPU_MIMX8MM6DVTLZ_cm4 \
++    -DMCUXPRESSO_SDK \
++    -g \
++    -O0 \
++    -mcpu=cortex-m4 \
++    -Wall \
++    -Wno-address-of-packed-member \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -mthumb \
++    -MMD \
++    -MP \
++    -fno-common \
++    -ffunction-sections \
++    -fdata-sections \
++    -ffreestanding \
++    -fno-builtin \
++    -mapcs \
++    -fno-rtti \
++    -fno-exceptions \
++")
++SET(CMAKE_CXX_FLAGS_RELEASE " \
++    ${CMAKE_CXX_FLAGS_RELEASE} \
++    -DNDEBUG \
++    -DCPU_MIMX8MM6DVTLZ \
++    -DCPU_MIMX8MM6DVTLZ_cm4 \
++    -DMCUXPRESSO_SDK \
++    -O0 \
++    -mcpu=cortex-m4 \
++    -Wall \
++    -Wno-address-of-packed-member \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -mthumb \
++    -MMD \
++    -MP \
++    -fno-common \
++    -ffunction-sections \
++    -fdata-sections \
++    -ffreestanding \
++    -fno-builtin \
++    -mapcs \
++    -fno-rtti \
++    -fno-exceptions \
++")
++SET(CMAKE_CXX_FLAGS_DDR_DEBUG " \
++    ${CMAKE_CXX_FLAGS_DDR_DEBUG} \
++    -DCPU_MIMX8MM6DVTLZ \
++    -DCPU_MIMX8MM6DVTLZ_cm4 \
++    -DMCUXPRESSO_SDK \
++    -g \
++    -O0 \
++    -mcpu=cortex-m4 \
++    -Wall \
++    -Wno-address-of-packed-member \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -mthumb \
++    -MMD \
++    -MP \
++    -fno-common \
++    -ffunction-sections \
++    -fdata-sections \
++    -ffreestanding \
++    -fno-builtin \
++    -mapcs \
++    -fno-rtti \
++    -fno-exceptions \
++")
++SET(CMAKE_CXX_FLAGS_DDR_RELEASE " \
++    ${CMAKE_CXX_FLAGS_DDR_RELEASE} \
++    -DCPU_MIMX8MM6DVTLZ \
++    -DCPU_MIMX8MM6DVTLZ_cm4 \
++    -DMCUXPRESSO_SDK \
++    -Os \
++    -mcpu=cortex-m4 \
++    -Wall \
++    -Wno-address-of-packed-member \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -mthumb \
++    -MMD \
++    -MP \
++    -fno-common \
++    -ffunction-sections \
++    -fdata-sections \
++    -ffreestanding \
++    -fno-builtin \
++    -mapcs \
++    -fno-rtti \
++    -fno-exceptions \
++")
++SET(CMAKE_EXE_LINKER_FLAGS_DEBUG " \
++    ${CMAKE_EXE_LINKER_FLAGS_DEBUG} \
++    -g \
++    -mcpu=cortex-m4 \
++    -Wall \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -Wl,--print-memory-usage \
++    --specs=nano.specs \
++    --specs=nosys.specs \
++    -fno-common \
++    -ffunction-sections \
++    -fdata-sections \
++    -ffreestanding \
++    -fno-builtin \
++    -mthumb \
++    -mapcs \
++    -Xlinker \
++    --gc-sections \
++    -Xlinker \
++    -static \
++    -Xlinker \
++    -z \
++    -Xlinker \
++    muldefs \
++    -Xlinker \
++    -Map=output.map \
++    -T${ProjDirPath}/MIMX8MM6xxxxx_cm4_ram.ld -static \
++")
++SET(CMAKE_EXE_LINKER_FLAGS_RELEASE " \
++    ${CMAKE_EXE_LINKER_FLAGS_RELEASE} \
++    -mcpu=cortex-m4 \
++    -Wall \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -Wl,--print-memory-usage \
++    --specs=nano.specs \
++    --specs=nosys.specs \
++    -fno-common \
++    -ffunction-sections \
++    -fdata-sections \
++    -ffreestanding \
++    -fno-builtin \
++    -mthumb \
++    -mapcs \
++    -Xlinker \
++    --gc-sections \
++    -Xlinker \
++    -static \
++    -Xlinker \
++    -z \
++    -Xlinker \
++    muldefs \
++    -Xlinker \
++    -Map=output.map \
++    -T${ProjDirPath}/MIMX8MM6xxxxx_cm4_ram.ld -static \
++")
++SET(CMAKE_EXE_LINKER_FLAGS_DDR_DEBUG " \
++    ${CMAKE_EXE_LINKER_FLAGS_DDR_DEBUG} \
++    -g \
++    -mcpu=cortex-m4 \
++    -Wall \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -Wl,--print-memory-usage \
++    --specs=nano.specs \
++    --specs=nosys.specs \
++    -fno-common \
++    -ffunction-sections \
++    -fdata-sections \
++    -ffreestanding \
++    -fno-builtin \
++    -mthumb \
++    -mapcs \
++    -Xlinker \
++    --gc-sections \
++    -Xlinker \
++    -static \
++    -Xlinker \
++    -z \
++    -Xlinker \
++    muldefs \
++    -Xlinker \
++    -Map=output.map \
++    -T${ProjDirPath}/MIMX8MM6xxxxx_cm4_ddr_ram.ld -static \
++")
++SET(CMAKE_EXE_LINKER_FLAGS_DDR_RELEASE " \
++    ${CMAKE_EXE_LINKER_FLAGS_DDR_RELEASE} \
++    -mcpu=cortex-m4 \
++    -Wall \
++    -mfloat-abi=hard \
++    -mfpu=fpv4-sp-d16 \
++    -Wl,--print-memory-usage \
++    --specs=nano.specs \
++    --specs=nosys.specs \
++    -fno-common \
++    -ffunction-sections \
++    -fdata-sections \
++    -ffreestanding \
++    -fno-builtin \
++    -mthumb \
++    -mapcs \
++    -Xlinker \
++    --gc-sections \
++    -Xlinker \
++    -static \
++    -Xlinker \
++    -z \
++    -Xlinker \
++    muldefs \
++    -Xlinker \
++    -Map=output.map \
++    -T${ProjDirPath}/MIMX8MM6xxxxx_cm4_ddr_ram.ld -static \
++")
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/include/lwip_hooks.h b/evkmimx8mm/profinet_examples/profinet_blink/freertos/include/lwip_hooks.h
+new file mode 100644
+index 000000000..c08961b57
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/include/lwip_hooks.h
+@@ -0,0 +1,6 @@
++#ifndef LWIP_HOOKS_H
++#define LWIP_HOOKS_H
++
++err_enum_t lwip_hook_unknown_eth_protocol (struct pbuf * pbuf, struct netif * netif);
++
++#endif /* LWIP_HOOKS_H */
+\ No newline at end of file
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/include/lwipopts.h b/evkmimx8mm/profinet_examples/profinet_blink/freertos/include/lwipopts.h
+new file mode 100644
+index 000000000..b5ca5e5f6
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/include/lwipopts.h
+@@ -0,0 +1,316 @@
++/**
++ ******************************************************************************
++ * @file    lwipopts.h
++ * This file is based on \src\include\lwip\opt.h
++ ******************************************************************************
++ * Copyright (c) 2013-2016, Freescale Semiconductor, Inc.
++ * Copyright 2016-2018,2023 NXP
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#ifndef __LWIPOPTS_H__
++#define __LWIPOPTS_H__
++/**
++ * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
++ * critical regions during buffer allocation, deallocation and memory
++ * allocation and deallocation.
++ */
++
++#define SYS_LIGHTWEIGHT_PROT            1
++#define LWIP_TIMERS                     1
++#define LWIP_NETIF_HOSTNAME             1
++
++#define IP_SOF_BROADCAST                0
++#define IP_SOF_BROADCAST_RECV           0
++#define LWIP_BROADCAST_PING             0
++#define LWIP_MULTICAST_PING             0
++
++/**
++ * NO_SYS==0: Use RTOS
++ */
++#define NO_SYS                   0
++
++#define LWIP_RAW                 0
++/**
++ * LWIP_NETCONN==1: Enable Netconn API (require to use api_lib.c)
++ */
++#define LWIP_NETCONN             1
++/**
++ * LWIP_SOCKET==1: Enable Socket API (require to use sockets.c)
++ */
++#define LWIP_SOCKET              1
++
++/**
++ * LWIP_SO_RCVTIMEO==1: Enable receive timeout for sockets/netconns and
++ * SO_RCVTIMEO processing.
++ */
++#define LWIP_SO_RCVTIMEO         1
++
++/* ---------- Core locking ---------- */
++
++#define LWIP_TCPIP_CORE_LOCKING  1
++
++void sys_lock_tcpip_core(void);
++#define LOCK_TCPIP_CORE() sys_lock_tcpip_core()
++
++void sys_unlock_tcpip_core(void);
++#define UNLOCK_TCPIP_CORE() sys_unlock_tcpip_core()
++
++void sys_check_core_locking(void);
++#define LWIP_ASSERT_CORE_LOCKED() sys_check_core_locking()
++
++void sys_mark_tcpip_thread(void);
++#define LWIP_MARK_TCPIP_THREAD() sys_mark_tcpip_thread()
++
++/* ---------- Memory options ---------- */
++/**
++ * MEM_ALIGNMENT: should be set to the alignment of the CPU
++ *    4 byte alignment -> #define MEM_ALIGNMENT 4
++ *    2 byte alignment -> #define MEM_ALIGNMENT 2
++ */
++#ifndef MEM_ALIGNMENT
++#define MEM_ALIGNMENT 4
++#endif
++
++/**
++ * MEM_SIZE: the size of the heap memory. If the application will send
++ * a lot of data that needs to be copied, this should be set high.
++ */
++#ifndef MEM_SIZE
++#define MEM_SIZE (22 * 1024)
++#endif
++
++/* MEMP_NUM_PBUF: the number of memp struct pbufs. If the application
++   sends a lot of data out of ROM (or other static memory), this
++   should be set high. */
++#ifndef MEMP_NUM_PBUF
++#define MEMP_NUM_PBUF 15
++#endif
++/* MEMP_NUM_UDP_PCB: the number of UDP protocol control blocks. One
++   per active UDP "connection". */
++#ifndef MEMP_NUM_UDP_PCB
++#define MEMP_NUM_UDP_PCB 6
++#endif
++/* MEMP_NUM_TCP_PCB: the number of simulatenously active TCP
++   connections. */
++#ifndef MEMP_NUM_TCP_PCB
++#define MEMP_NUM_TCP_PCB 10
++#endif
++/* MEMP_NUM_TCP_PCB_LISTEN: the number of listening TCP
++   connections. */
++#ifndef MEMP_NUM_TCP_PCB_LISTEN
++#define MEMP_NUM_TCP_PCB_LISTEN 6
++#endif
++/* MEMP_NUM_TCP_SEG: the number of simultaneously queued TCP
++   segments. */
++#ifndef MEMP_NUM_TCP_SEG
++#define MEMP_NUM_TCP_SEG 22
++#endif
++/* MEMP_NUM_SYS_TIMEOUT: the number of simulateously active
++   timeouts. */
++#ifndef MEMP_NUM_SYS_TIMEOUT
++#define MEMP_NUM_SYS_TIMEOUT 10
++#endif
++
++/* ---------- Pbuf options ---------- */
++/* PBUF_POOL_SIZE: the number of buffers in the pbuf pool. */
++#ifndef PBUF_POOL_SIZE
++#define PBUF_POOL_SIZE 16
++#endif
++
++/* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool. */
++/* Default value is defined in lwip\src\include\lwip\opt.h as
++ * LWIP_MEM_ALIGN_SIZE(TCP_MSS+40+PBUF_LINK_ENCAPSULATION_HLEN+PBUF_LINK_HLEN)*/
++
++/* ---------- TCP options ---------- */
++#ifndef LWIP_TCP
++#define LWIP_TCP 1
++#endif
++
++#ifndef TCP_TTL
++#define TCP_TTL 255
++#endif
++
++/* Controls if TCP should queue segments that arrive out of
++   order. Define to 0 if your device is low on memory. */
++#ifndef TCP_QUEUE_OOSEQ
++#define TCP_QUEUE_OOSEQ 1
++#endif
++
++/* TCP Maximum segment size. */
++#ifndef TCP_MSS
++#define TCP_MSS (1500 - 40) /* TCP_MSS = (Ethernet MTU - IP header size - TCP header size) */
++#endif
++
++/* TCP sender buffer space (bytes). */
++#ifndef TCP_SND_BUF
++#define TCP_SND_BUF (6 * TCP_MSS) // 2
++#endif
++
++/* TCP sender buffer space (pbufs). This must be at least = 2 *
++   TCP_SND_BUF/TCP_MSS for things to work. */
++#ifndef TCP_SND_QUEUELEN
++#define TCP_SND_QUEUELEN (3 * TCP_SND_BUF) / TCP_MSS // 6
++#endif
++
++/* TCP receive window. */
++#ifndef TCP_WND
++#define TCP_WND (2 * TCP_MSS)
++#endif
++
++/* Enable backlog*/
++#ifndef TCP_LISTEN_BACKLOG
++#define TCP_LISTEN_BACKLOG 1
++#endif
++
++/* ---------- Network Interfaces options ---------- */
++/* Support netif api (in netifapi.c). */
++#ifndef LWIP_NETIF_API
++#define LWIP_NETIF_API 1
++#endif
++
++/* ---------- ICMP options ---------- */
++#ifndef LWIP_ICMP
++#define LWIP_ICMP 1
++#endif
++
++/* ---------- DHCP options ---------- */
++/* Enable DHCP module. */
++#ifndef LWIP_DHCP
++#define LWIP_DHCP 1
++#endif
++
++/* ---------- UDP options ---------- */
++#ifndef LWIP_UDP
++#define LWIP_UDP 1
++#endif
++#ifndef UDP_TTL
++#define UDP_TTL 255
++#endif
++
++/* ---------- Statistics options ---------- */
++#ifndef LWIP_STATS
++#define LWIP_STATS 1
++#endif
++#ifndef LWIP_PROVIDE_ERRNO
++#define LWIP_PROVIDE_ERRNO 1
++#endif
++
++#define LWIP_IPV6                  0
++
++
++#define MIB2_STATS                 1
++
++/**
++ * DEFAULT_THREAD_STACKSIZE: The stack size used by any other lwIP thread.
++ * The stack size value itself is platform-dependent, but is passed to
++ * sys_thread_new() when the thread is created.
++ */
++#ifndef DEFAULT_THREAD_STACKSIZE
++#define DEFAULT_THREAD_STACKSIZE 1024
++#endif
++
++/**
++ * DEFAULT_THREAD_PRIO: The priority assigned to any other lwIP thread.
++ * The priority value itself is platform-dependent, but is passed to
++ * sys_thread_new() when the thread is created.
++ */
++#ifndef DEFAULT_THREAD_PRIO
++#define DEFAULT_THREAD_PRIO 3
++#endif
++
++/*
++   ------------------------------------
++   ---------- Debugging options ----------
++   ------------------------------------
++*/
++
++#define TCPIP_MBOX_SIZE        6
++#define TCPIP_THREAD_STACKSIZE 4096
++#define TCPIP_THREAD_PRIO      configMAX_PRIORITIES - 1
++
++/**
++ * DEFAULT_RAW_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
++ * NETCONN_RAW. The queue size value itself is platform-dependent, but is passed
++ * to sys_mbox_new() when the recvmbox is created.
++ */
++#define DEFAULT_RAW_RECVMBOX_SIZE 6
++
++/**
++ * DEFAULT_UDP_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
++ * NETCONN_UDP. The queue size value itself is platform-dependent, but is passed
++ * to sys_mbox_new() when the recvmbox is created.
++ */
++#define DEFAULT_UDP_RECVMBOX_SIZE 6
++
++/**
++ * DEFAULT_TCP_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
++ * NETCONN_TCP. The queue size value itself is platform-dependent, but is passed
++ * to sys_mbox_new() when the recvmbox is created.
++ */
++#define DEFAULT_TCP_RECVMBOX_SIZE 6
++
++/**
++ * DEFAULT_ACCEPTMBOX_SIZE: The mailbox size for the incoming connections.
++ * The queue size value itself is platform-dependent, but is passed to
++ * sys_mbox_new() when the acceptmbox is created.
++ */
++#define DEFAULT_ACCEPTMBOX_SIZE 6
++
++#define SO_REUSE                1
++
++/* --------------------------------------
++   ---------- Checksum options ----------
++   --------------------------------------
++*/
++
++/*
++Some MCU allow computing and verifying the IP, UDP, TCP and ICMP checksums by hardware:
++ - To use this feature let the following define uncommented.
++ - To disable it and process by CPU comment the  the checksum.
++*/
++//#define CHECKSUM_BY_HARDWARE
++
++#ifdef CHECKSUM_BY_HARDWARE
++/* CHECKSUM_GEN_IP==0: Generate checksums by hardware for outgoing IP packets.*/
++#define CHECKSUM_GEN_IP 0
++/* CHECKSUM_GEN_UDP==0: Generate checksums by hardware for outgoing UDP packets.*/
++#define CHECKSUM_GEN_UDP 0
++/* CHECKSUM_GEN_TCP==0: Generate checksums by hardware for outgoing TCP packets.*/
++#define CHECKSUM_GEN_TCP 0
++/* CHECKSUM_CHECK_IP==0: Check checksums by hardware for incoming IP packets.*/
++#define CHECKSUM_CHECK_IP 0
++/* CHECKSUM_CHECK_UDP==0: Check checksums by hardware for incoming UDP packets.*/
++#define CHECKSUM_CHECK_UDP 0
++/* CHECKSUM_CHECK_TCP==0: Check checksums by hardware for incoming TCP packets.*/
++#define CHECKSUM_CHECK_TCP 0
++#else
++/* CHECKSUM_GEN_IP==1: Generate checksums in software for outgoing IP packets.*/
++#define CHECKSUM_GEN_IP    1
++/* CHECKSUM_GEN_UDP==1: Generate checksums in software for outgoing UDP packets.*/
++#define CHECKSUM_GEN_UDP   1
++/* CHECKSUM_GEN_TCP==1: Generate checksums in software for outgoing TCP packets.*/
++#define CHECKSUM_GEN_TCP   1
++/* CHECKSUM_CHECK_IP==1: Check checksums in software for incoming IP packets.*/
++#define CHECKSUM_CHECK_IP  1
++/* CHECKSUM_CHECK_UDP==1: Check checksums in software for incoming UDP packets.*/
++#define CHECKSUM_CHECK_UDP 1
++/* CHECKSUM_CHECK_TCP==1: Check checksums in software for incoming TCP packets.*/
++#define CHECKSUM_CHECK_TCP 1
++#endif
++
++
++#define LWIP_HOOK_FILENAME "lwip_hooks.h"
++#define LWIP_HOOK_UNKNOWN_ETH_PROTOCOL lwip_hook_unknown_eth_protocol
++
++#if (LWIP_DNS || LWIP_IGMP || LWIP_IPV6) && !defined(LWIP_RAND)
++/* When using IGMP or IPv6, LWIP_RAND() needs to be defined to a random-function returning an u32_t random value*/
++#include "lwip/arch.h"
++u32_t lwip_rand(void);
++#define LWIP_RAND() lwip_rand()
++#endif
++
++#endif /* __LWIPOPTS_H__ */
++
++/*****END OF FILE****/
+\ No newline at end of file
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/p-net_blink_freertos.c b/evkmimx8mm/profinet_examples/profinet_blink/freertos/p-net_blink_freertos.c
+new file mode 100644
+index 000000000..2745eae5a
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/p-net_blink_freertos.c
+@@ -0,0 +1,263 @@
++/*
++ * Copyright 2023 NXP
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++/*******************************************************************************
++ * Includes
++ ******************************************************************************/
++
++#include "pin_mux.h"
++#include "fsl_gpio.h"
++#include "board.h"
++
++#include "sampleapp_common.h"
++#include "app_utils.h"
++#include "app_log.h"
++#include "app_gsdml.h"
++
++#include <lwip/netif.h>
++#include <string.h>
++#include "osal_log.h"
++#include "osal.h"
++
++#include "enet_ethernetif.h"
++#include "lwip/netifapi.h"
++#include "lwip/tcpip.h"
++#include "lwip/ip4_addr.h"
++
++#include "fsl_enet_mdio.h"
++#include "fsl_phyar8031.h"
++
++#define APP_DEFAULT_ETHERNET_INTERFACE "en0"
++#define APP_LOG_LEVEL                  APP_LOG_LEVEL_INFO
++
++#define APP_BG_WORKER_THREAD_PRIORITY  2
++#define APP_BG_WORKER_THREAD_STACKSIZE 4096 /* bytes */
++#define APP_DEFAULT_FILE_DIRECTORY ""
++
++#define PHY_ADDRESS             0x00u
++#define ENET_CLOCK_FREQ         250000000
++
++#define EXAMPLE_CLOCK_FREQ CLOCK_GetFreq(kCLOCK_IpgClk)
++
++#define EXAMPLE_PHY_INTERFACE_RGMII
++#ifndef PHY_AUTONEGO_TIMEOUT_COUNT
++#define PHY_AUTONEGO_TIMEOUT_COUNT (100000)
++#endif
++#ifndef PHY_STABILITY_DELAY_US
++#define PHY_STABILITY_DELAY_US (0U)
++#endif
++
++/*! @brief Stack size of the temporary lwIP initialization thread. */
++#define INIT_THREAD_STACKSIZE 1024
++
++/*! @brief Priority of the temporary lwIP initialization thread. */
++#define INIT_THREAD_PRIO DEFAULT_THREAD_PRIO
++
++/* MDIO operations. */
++#define EXAMPLE_MDIO_OPS enet_ops
++/* PHY operations. */
++#define EXAMPLE_PHY_OPS phyar8031_ops 
++
++#ifndef EXAMPLE_NETIF_INIT_FN
++/*! @brief Network interface initialization function. */
++#define EXAMPLE_NETIF_INIT_FN ethernetif0_init
++#endif /* EXAMPLE_NETIF_INIT_FN */
++
++/* IP address configuration. */
++#ifndef configIP_ADDR0
++#define configIP_ADDR0      192
++#endif
++#ifndef configIP_ADDR1
++#define configIP_ADDR1      168
++#endif
++#ifndef configIP_ADDR2
++#define configIP_ADDR2      11
++#endif
++#ifndef configIP_ADDR3
++#define configIP_ADDR3      3
++#endif
++
++/* Netmask configuration. */
++#ifndef configNET_MASK0
++#define configNET_MASK0     255
++#endif
++#ifndef configNET_MASK1
++#define configNET_MASK1     255
++#endif
++#ifndef configNET_MASK2
++#define configNET_MASK2     255
++#endif
++#ifndef configNET_MASK3
++#define configNET_MASK3     0
++#endif
++
++/* Gateway address configuration. */
++#ifndef configGW_ADDR0
++#define configGW_ADDR0      0
++#endif
++#ifndef configGW_ADDR1
++#define configGW_ADDR1      0
++#endif
++#ifndef configGW_ADDR2
++#define configGW_ADDR2      0
++#endif
++#ifndef configGW_ADDR3
++#define configGW_ADDR3      0
++#endif
++
++/* MAC address configuration. */
++#define configMAC_ADDR                     \
++    {                                      \
++        0x00, 0x04, 0x9F, 0x05, 0xCF, 0xFC \
++    }
++
++static mdio_handle_t mdioHandle = {.ops = &EXAMPLE_MDIO_OPS};
++static phy_handle_t phyHandle   = {.phyAddr = PHY_ADDRESS, .mdioHandle = &mdioHandle, .ops = &EXAMPLE_PHY_OPS};
++
++/********************************** Globals ***********************************/
++static app_data_t * sample_app = NULL;
++static pnet_cfg_t pnet_cfg = {0};
++app_args_t app_args = {0};
++
++struct netif netif_mini;
++
++/*!
++ * @brief Main function.
++ */
++
++/* Only works on GPIO5 */
++void app_set_led (int pin, bool led_state) {
++  GPIO_WritePinOutput(GPIO5, pin, led_state ? true : false);
++}
++
++static void stack_init (void *arg) {
++  pnet_if_cfg_t netif_cfg = {0};
++  uint16_t number_of_ports = 1;
++
++  strcpy (app_args.eth_interfaces, APP_DEFAULT_ETHERNET_INTERFACE);
++  strcpy (app_args.station_name, APP_GSDML_DEFAULT_STATION_NAME);
++  app_log_set_log_level (APP_LOG_LEVEL);
++
++  APP_LOG_INFO ("\n** Starting P-Net sample application " PNET_VERSION
++                " **\n");
++  APP_LOG_INFO ("P-net log level:      %u (DEBUG=0, FATAL=4)\n", LOG_LEVEL);
++  APP_LOG_INFO ("App log level:        %u (DEBUG=0, FATAL=4)\n", APP_LOG_LEVEL);
++  APP_LOG_INFO ("Max number of ports:  %u\n", PNET_MAX_PHYSICAL_PORTS);
++  APP_LOG_INFO ("Network interfaces:   %s\n", app_args.eth_interfaces);
++  APP_LOG_INFO ("Default station name: %s\n", app_args.station_name);
++
++  app_pnet_cfg_init_default (&pnet_cfg);
++
++  strcpy (pnet_cfg.file_directory, APP_DEFAULT_FILE_DIRECTORY);
++
++  ip4_addr_t netif_ipaddr;
++  ip4_addr_t netif_netmask;
++  ip4_addr_t netif_gw;
++
++  ethernetif_config_t enet_config = {
++        .phyHandle  = &phyHandle,
++        .macAddress = configMAC_ADDR,
++    };
++
++  mdioHandle.resource.csrClock_Hz = ENET_CLOCK_FREQ;
++
++  IP4_ADDR(&netif_ipaddr, configIP_ADDR0, configIP_ADDR1, configIP_ADDR2, configIP_ADDR3);
++  IP4_ADDR(&netif_netmask, configNET_MASK0, configNET_MASK1, configNET_MASK2, configNET_MASK3);
++  IP4_ADDR(&netif_gw, configGW_ADDR0, configGW_ADDR1, configGW_ADDR2, configGW_ADDR3);
++
++  tcpip_init(NULL,NULL);
++
++  netifapi_netif_add(&netif_mini, &netif_ipaddr, &netif_netmask, &netif_gw, &enet_config, EXAMPLE_NETIF_INIT_FN,
++                      &tcpip_input);
++
++  netifapi_netif_set_default(&netif_mini);
++  netifapi_netif_set_up(&netif_mini);
++
++  app_utils_copy_ip_to_struct (&netif_cfg.ip_cfg.ip_addr, htonl(netif_ipaddr.addr));
++  app_utils_copy_ip_to_struct (&netif_cfg.ip_cfg.ip_gateway, htonl(netif_gw.addr));
++  app_utils_copy_ip_to_struct (&netif_cfg.ip_cfg.ip_mask, htonl(netif_netmask.addr));
++  
++  netif_cfg.main_netif_name = APP_DEFAULT_ETHERNET_INTERFACE;
++  netif_cfg.physical_ports->netif_name = netif_cfg.main_netif_name;
++  netif_cfg.physical_ports->default_mau_type = APP_GSDML_DEFAULT_MAUTYPE;
++
++  pnet_cfg.if_cfg = netif_cfg;
++  pnet_cfg.num_physical_ports = number_of_ports;
++
++  app_utils_print_network_config (&netif_cfg, number_of_ports);
++
++  pnet_cfg.pnal_cfg.bg_worker_thread.prio       = APP_BG_WORKER_THREAD_PRIORITY;
++  pnet_cfg.pnal_cfg.bg_worker_thread.stack_size = APP_BG_WORKER_THREAD_STACKSIZE;
++
++  /* Initialize profinet stack */
++  sample_app = app_init (&pnet_cfg, NULL);
++  if (sample_app == NULL)
++  {
++    printf("Failed to initialize P-Net.\n");
++    printf("Aborting application\n");
++    vTaskDelete(NULL);
++  }
++
++    /* Start main loop */
++  if (app_start (sample_app, RUN_IN_MAIN_THREAD) != 0)
++  {
++    printf("Failed to start\n");
++    printf("Aborting application\n");
++    vTaskDelete(NULL);
++  }
++
++  app_loop_forever(sample_app);
++
++  vTaskDelete(NULL);
++}
++
++int main(void)
++{
++  /* Hardware Initialization. */
++  BOARD_InitMemory();
++  BOARD_RdcInit();
++  BOARD_InitPins();
++  BOARD_BootClockRUN();
++  BOARD_InitDebugConsole();
++
++  CLOCK_SetRootDivider(kCLOCK_RootEnetAxi, 1U, 1U);
++  CLOCK_SetRootMux(kCLOCK_RootEnetAxi, kCLOCK_EnetAxiRootmuxSysPll2Div4); /* SYSTEM PLL2 divided by 4: 250Mhz */
++
++  /* Time stamp clock */
++  CLOCK_SetRootDivider(kCLOCK_RootEnetTimer, 1U, 1U);
++  CLOCK_SetRootMux(kCLOCK_RootEnetTimer, kCLOCK_EnetTimerRootmuxSysPll2Div10); /* SYSTEM PLL2 divided by 10: 100Mhz */
++  
++  /* mii/rgmii interface clock */
++  CLOCK_SetRootDivider(kCLOCK_RootEnetRef, 1U, 1U);
++  CLOCK_SetRootMux(kCLOCK_RootEnetRef, kCLOCK_EnetRefRootmuxSysPll2Div8); /* SYSTEM PLL2 divided by 8: 125MHz */
++  
++  gpio_pin_config_t gpio_config = {kGPIO_DigitalOutput, 0, kGPIO_NoIntmode};
++
++  /* LED pin */
++  GPIO_PinInit(GPIO5, 13, &gpio_config);
++  /* PHY reset pin */
++  GPIO_PinInit(GPIO4, 22, &gpio_config);
++
++  /* PHY reset */
++  GPIO_WritePinOutput(GPIO4, 22, 0);
++  SDK_DelayAtLeastUs(10000, SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY);
++  GPIO_WritePinOutput(GPIO4, 22, 1);
++  SDK_DelayAtLeastUs(30000, SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY);
++  
++  EnableIRQ(ENET_MAC0_Rx_Tx_Done1_IRQn);
++  EnableIRQ(ENET_MAC0_Rx_Tx_Done2_IRQn);
++
++    /* Initialize lwIP from thread */
++  if (sys_thread_new("main", stack_init, NULL, INIT_THREAD_STACKSIZE, INIT_THREAD_PRIO) == NULL)
++  {
++      LWIP_ASSERT("main(): Task creation failed.", 0);
++  }
++
++  vTaskStartScheduler();
++
++  /* Will not get here unless a task calls vTaskEndScheduler ()*/
++  return 0;
++}
+\ No newline at end of file
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/pin_mux.c b/evkmimx8mm/profinet_examples/profinet_blink/freertos/pin_mux.c
+new file mode 100644
+index 000000000..fd95c4c28
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/pin_mux.c
+@@ -0,0 +1,96 @@
++/*
++ * Copyright 2022 NXP
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#include "fsl_common.h"
++#include "fsl_iomuxc.h"
++#include "pin_mux.h"
++
++void BOARD_InitBootPins(void)
++{
++    BOARD_InitPins();
++}
++
++void BOARD_InitPins(void) {                                
++    IOMUXC_SetPinMux(IOMUXC_UART4_RXD_UART4_RX, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_UART4_RXD_UART4_RX, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(6U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(2U));
++    IOMUXC_SetPinMux(IOMUXC_UART4_TXD_UART4_TX, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_UART4_TXD_UART4_TX, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(6U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(2U));
++    
++    IOMUXC_SetPinMux(IOMUXC_ENET_MDIO_ENET1_MDIO, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_MDIO_ENET1_MDIO, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(3U));
++    IOMUXC_SetPinMux(IOMUXC_ENET_MDC_ENET1_MDC, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_MDC_ENET1_MDC, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(3U));
++    
++    IOMUXC_SetPinMux(IOMUXC_ENET_TD3_ENET1_RGMII_TD3, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_TD3_ENET1_RGMII_TD3,
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(7U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(3U));
++    IOMUXC_SetPinMux(IOMUXC_ENET_TD2_ENET1_RGMII_TD2, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_TD2_ENET1_RGMII_TD2, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(7U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(3U));
++    IOMUXC_SetPinMux(IOMUXC_ENET_TD1_ENET1_RGMII_TD1, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_TD1_ENET1_RGMII_TD1, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(7U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(3U));
++    IOMUXC_SetPinMux(IOMUXC_ENET_TD0_ENET1_RGMII_TD0, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_TD0_ENET1_RGMII_TD0, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(7U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(3U));
++
++    IOMUXC_SetPinMux(IOMUXC_ENET_RD3_ENET1_RGMII_RD3, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_RD3_ENET1_RGMII_RD3, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(1U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(2U) |
++                        IOMUXC_SW_PAD_CTL_PAD_HYS(1U));
++    IOMUXC_SetPinMux(IOMUXC_ENET_RD2_ENET1_RGMII_RD2, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_RD2_ENET1_RGMII_RD2, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(1U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(2U) |
++                        IOMUXC_SW_PAD_CTL_PAD_HYS(1U));
++    IOMUXC_SetPinMux(IOMUXC_ENET_RD1_ENET1_RGMII_RD1, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_RD1_ENET1_RGMII_RD1, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(1U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(2U) |
++                        IOMUXC_SW_PAD_CTL_PAD_HYS(1U));
++    IOMUXC_SetPinMux(IOMUXC_ENET_RD0_ENET1_RGMII_RD0, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_RD0_ENET1_RGMII_RD0, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(1U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(2U) |
++                        IOMUXC_SW_PAD_CTL_PAD_HYS(1U));
++
++    IOMUXC_SetPinMux(IOMUXC_ENET_TXC_ENET1_RGMII_TXC, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_TXC_ENET1_RGMII_TXC, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(7U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(3U));
++    IOMUXC_SetPinMux(IOMUXC_ENET_RXC_ENET1_RGMII_RXC, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_RXC_ENET1_RGMII_RXC, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(1U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(2U) |
++                        IOMUXC_SW_PAD_CTL_PAD_HYS(1U));
++
++    IOMUXC_SetPinMux(IOMUXC_ENET_RX_CTL_ENET1_RGMII_RX_CTL, 0U);
++    IOMUXC_SetPinConfig(IOMUXC_ENET_RX_CTL_ENET1_RGMII_RX_CTL, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(1U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(2U) |
++                        IOMUXC_SW_PAD_CTL_PAD_HYS(1U));
++    IOMUXC_SetPinMux(IOMUXC_ENET_TX_CTL_ENET1_RGMII_TX_CTL, 0U); 
++    IOMUXC_SetPinConfig(IOMUXC_ENET_TX_CTL_ENET1_RGMII_TX_CTL, 
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(7U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(3U));
++    
++    IOMUXC_SetPinMux(IOMUXC_SAI2_RXC_GPIO4_IO22, 5U);
++    IOMUXC_SetPinConfig(IOMUXC_SAI2_RXC_GPIO4_IO22,
++                        IOMUXC_SW_PAD_CTL_PAD_DSE(1U) |
++                        IOMUXC_SW_PAD_CTL_PAD_FSEL(3U));
++}
++
+diff --git a/evkmimx8mm/profinet_examples/profinet_blink/freertos/pin_mux.h b/evkmimx8mm/profinet_examples/profinet_blink/freertos/pin_mux.h
+new file mode 100644
+index 000000000..62f2ee186
+--- /dev/null
++++ b/evkmimx8mm/profinet_examples/profinet_blink/freertos/pin_mux.h
+@@ -0,0 +1,25 @@
++/*
++ * Copyright 2022 NXP
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#ifndef _PIN_MUX_H_
++#define _PIN_MUX_H_
++
++#include "board.h"
++
++#if defined(__cplusplus)
++extern "C" {
++#endif
++
++void BOARD_InitBootPins(void);
++
++void BOARD_InitPins(void);                                 
++
++#if defined(__cplusplus)
++}
++#endif
++
++#endif /* _PIN_MUX_H_ */
++
