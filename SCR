@@ -5,6 +5,7 @@ Version:                1.0
 Date Created:           March-2023
 Release Location:       
 Description:            Patches for i.MX8M PROFINET Demo
+Main Package License:   LA_OPT_NXP_Software_License.txt v43 February 2023 - Standard License in Section 2.2 applies
 
 Package:                        imx8m_pnet_port.patch 
 Outgoing License:               Open Source - GPL-3.0-only
